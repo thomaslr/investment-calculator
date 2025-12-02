@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Scenario Layout */
+        .scenarios-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .scenario-card {
+            position: relative;
+        }
+
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .scenario-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scenario-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .scenario-badge.a {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        .scenario-badge.b {
+            background: rgba(255, 165, 0, 0.3);
+            color: #ffa500;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #aaa;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* Comparison Section */
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .comparison-column {
+            text-align: center;
+        }
+
+        .comparison-column.scenario-a {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding-right: 20px;
+        }
+
+        .comparison-column.scenario-b {
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 20px;
+        }
+
+        .comparison-vs {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .vs-badge {
+            background: linear-gradient(135deg, #00d9ff, #ffa500);
+            color: #1a1a2e;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+        }
+
+        .comparison-header {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+
+        .comparison-column.scenario-a .comparison-header {
+            border-color: #00d9ff;
+            color: #00d9ff;
+        }
+
+        .comparison-column.scenario-b .comparison-header {
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+
+        .comparison-stat {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .comparison-stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .comparison-stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .comparison-stat-value.winner {
+            color: #00ff88;
+        }
+
+        .comparison-stat-value.loser {
+            color: #888;
+        }
+
+        .difference-indicator {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .difference-indicator.positive {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .difference-indicator.negative {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        /* Combined Chart */
+        .combined-chart-container {
+            margin-top: 30px;
+        }
+
+        .bar-segment.scenario-a {
+            background: #00d9ff;
+        }
+
+        .bar-segment.scenario-b {
+            background: #ffa500;
+        }
+
+        @media (max-width: 900px) {
+            .scenarios-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-vs {
+                padding: 10px;
+            }
+
+            .comparison-column.scenario-a,
+            .comparison-column.scenario-b {
+                border: none;
+                padding: 0;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .phase-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid;
+        }
+
+        .phase-section.phase1 {
+            border-left-color: #00d9ff;
+        }
+
+        .phase-section.phase2 {
+            border-left-color: #ff6b6b;
+        }
+
+        .phase-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-title .badge {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .phase1 .badge {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        .phase2 .badge {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input,
+        select {
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        input::placeholder {
+            color: #666;
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+        }
+
+        .input-group select {
+            width: 120px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            padding: 15px 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            margin-top: 20px;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            border: none;
+            border-radius: 10px;
+            color: #1a1a2e;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
+        }
+
+        .results-card {
+            display: none;
+        }
+
+        .results-card.visible {
+            display: block;
+        }
+
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result-item.highlight {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(0, 255, 136, 0.2));
+            border: 1px solid rgba(0, 217, 255, 0.5);
+        }
+
+        .result-item.phase1-highlight {
+            background: rgba(0, 217, 255, 0.15);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .result-item.highlight .result-value {
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-item.phase1-highlight .result-value {
+            color: #00d9ff;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .pie-chart {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .pie-svg {
+            width: 200px;
+            height: 200px;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+        }
+
+        .legend-color.starting {
+            background: #00d9ff;
+        }
+
+        .legend-color.contributions {
+            background: #00ff88;
+        }
+
+        .legend-color.interest {
+            background: #ff6b6b;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schedule-table th {
+            background: rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .schedule-table th:first-child,
+        .schedule-table td:first-child {
+            text-align: left;
+        }
+
+        .schedule-table tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .schedule-table tr.phase1 td {
+            border-left: 3px solid #00d9ff;
+        }
+
+        .schedule-table tr.phase2 td {
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .schedule-table tr.phase-transition td {
+            border-top: 2px dashed rgba(255, 107, 107, 0.5);
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        .phase-indicator.p1 {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        .phase-indicator.p2 {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .phase-legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .phase-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phase-legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .phase-legend-color.p1 {
+            background: #00d9ff;
+        }
+
+        .phase-legend-color.p2 {
+            background: #ff6b6b;
+        }
+
+        /* Stacked Bar Chart Styles */
+        .bar-chart-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .bar-chart-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .bar-chart {
+            position: relative;
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 0 10px;
+            border-left: 2px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 60px;
+            position: relative;
+        }
+
+        .bar-stack {
+            width: 100%;
+            max-width: 40px;
+            display: flex;
+            flex-direction: column-reverse;
+            border-radius: 4px 4px 0 0;
+            overflow: hidden;
+        }
+
+        .bar-segment {
+            width: 100%;
+            transition: opacity 0.3s;
+        }
+
+        .bar-segment.starting {
+            background: #00d9ff;
+        }
+
+        .bar-segment.contributions {
+            background: #00ff88;
+        }
+
+        .bar-segment.interest {
+            background: #ff6b6b;
+        }
+
+        .bar-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .bar-group:hover .bar-segment {
+            opacity: 0.8;
+        }
+
+        .bar-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 10px;
+        }
+
+        .bar-group:hover .bar-tooltip {
+            display: block;
+        }
+
+        .bar-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .phase-marker {
+            position: absolute;
+            top: 0;
+            bottom: 30px;
+            width: 3px;
+            background: linear-gradient(to bottom, #ff6b6b, transparent);
+            z-index: 10;
+        }
+
+        .phase-marker::before {
+            content: 'CONTRIBUTIONS END';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .phase-marker::after {
+            content: '▼';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff6b6b;
+            font-size: 1rem;
+        }
+
+        .y-axis {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 30px;
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .y-axis-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .bar-chart-wrapper {
+            position: relative;
+            margin-left: 80px;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .chart-legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .chart-legend-color.starting {
+            background: #00d9ff;
+        }
+
+        .chart-legend-color.contributions {
+            background: #00ff88;
+        }
+
+        .chart-legend-color.interest {
+            background: #ff6b6b;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .calculator-card {
+                padding: 20px;
+            }
+
+            .result-value {
+                font-size: 1.2rem;
+            }
+
+            .phase-section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💰 Investment Calculator</h1>
+
+        <div class="scenarios-wrapper">
+            <!-- Scenario A -->
+            <div class="calculator-card scenario-card">
+                <div class="scenario-header">
+                    <div class="scenario-title">
+                        <span class="scenario-badge a">A</span>
+                        Scenario A
+                    </div>
+                    <button type="button" class="copy-btn" onclick="copyScenario('a', 'b')">Copy to B →</button>
+                </div>
+                <form id="calculator-form-a" class="scenario-form" data-scenario="a">
+                    <div class="phase-section phase1">
+                        <div class="phase-title">
+                            <span class="badge">Phase 1</span>
+                            Accumulation Period
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Starting Amount ($)</label>
+                                <input type="number" name="starting_amount" value="20000" min="0" step="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Contribution Years</label>
+                                <input type="number" name="contribution_years" value="10" min="0" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Contribution ($)</label>
+                                <div class="input-group">
+                                    <input type="number" name="contribution" value="1000" min="0" step="50">
+                                    <select name="contribution_frequency">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Contribute at the</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="contribution_timing_a" value="beginning">
+                                    <span>Beginning</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="contribution_timing_a" value="end" checked>
+                                    <span>End</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="phase-section phase2">
+                        <div class="phase-title">
+                            <span class="badge">Phase 2</span>
+                            Growth Only Period
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Additional Growth Years</label>
+                                <input type="number" name="growth_years" value="10" min="0" max="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>Annual Return Rate (%)</label>
+                            <input type="number" name="return_rate" value="6" min="0" max="50" step="0.1">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Scenario B -->
+            <div class="calculator-card scenario-card">
+                <div class="scenario-header">
+                    <div class="scenario-title">
+                        <span class="scenario-badge b">B</span>
+                        Scenario B
+                    </div>
+                    <button type="button" class="copy-btn" onclick="copyScenario('b', 'a')">← Copy to A</button>
+                </div>
+                <form id="calculator-form-b" class="scenario-form" data-scenario="b">
+                    <div class="phase-section phase1">
+                        <div class="phase-title">
+                            <span class="badge">Phase 1</span>
+                            Accumulation Period
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Starting Amount ($)</label>
+                                <input type="number" name="starting_amount" value="10000" min="0" step="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Contribution Years</label>
+                                <input type="number" name="contribution_years" value="15" min="0" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Contribution ($)</label>
+                                <div class="input-group">
+                                    <input type="number" name="contribution" value="500" min="0" step="50">
+                                    <select name="contribution_frequency">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Contribute at the</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="contribution_timing_b" value="beginning">
+                                    <span>Beginning</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="contribution_timing_b" value="end" checked>
+                                    <span>End</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="phase-section phase2">
+                        <div class="phase-title">
+                            <span class="badge">Phase 2</span>
+                            Growth Only Period
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Additional Growth Years</label>
+                                <input type="number" name="growth_years" value="5" min="0" max="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>Annual Return Rate (%)</label>
+                            <input type="number" name="return_rate" value="7" min="0" max="50" step="0.1">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <button type="button" class="calculate-btn" onclick="calculateBoth()" style="margin-bottom: 30px;">⚖️ Compare
+            Scenarios</button>
+
+        <!-- Comparison Results -->
+        <div class="comparison-card results-card" id="results-card">
+            <h2>⚖️ Scenario Comparison</h2>
+
+            <div class="comparison-grid">
+                <div class="comparison-column scenario-a">
+                    <div class="comparison-header">Scenario A</div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Final Balance</div>
+                        <div class="comparison-stat-value" id="end-balance-a">$0.00</div>
+                        <div class="difference-indicator" id="diff-balance-a"></div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">After Phase 1</div>
+                        <div class="comparison-stat-value" id="phase1-balance-a">$0.00</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Total Contributed</div>
+                        <div class="comparison-stat-value" id="total-contributions-a">$0.00</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Interest Earned</div>
+                        <div class="comparison-stat-value" id="total-interest-a">$0.00</div>
+                        <div class="difference-indicator" id="diff-interest-a"></div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Total Years</div>
+                        <div class="comparison-stat-value" id="total-years-a">0</div>
+                    </div>
+                </div>
+
+                <div class="comparison-vs">
+                    <div class="vs-badge">VS</div>
+                </div>
+
+                <div class="comparison-column scenario-b">
+                    <div class="comparison-header">Scenario B</div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Final Balance</div>
+                        <div class="comparison-stat-value" id="end-balance-b">$0.00</div>
+                        <div class="difference-indicator" id="diff-balance-b"></div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">After Phase 1</div>
+                        <div class="comparison-stat-value" id="phase1-balance-b">$0.00</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Total Contributed</div>
+                        <div class="comparison-stat-value" id="total-contributions-b">$0.00</div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Interest Earned</div>
+                        <div class="comparison-stat-value" id="total-interest-b">$0.00</div>
+                        <div class="difference-indicator" id="diff-interest-b"></div>
+                    </div>
+                    <div class="comparison-stat">
+                        <div class="comparison-stat-label">Total Years</div>
+                        <div class="comparison-stat-value" id="total-years-b">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combined Growth Chart -->
+            <div class="bar-chart-container combined-chart-container">
+                <div class="bar-chart-title">📈 Growth Comparison Over Time</div>
+                <div class="y-axis" id="y-axis-combined">
+                </div>
+                <div class="bar-chart-wrapper">
+                    <div class="bar-chart" id="bar-chart-combined">
+                    </div>
+                </div>
+                <div class="chart-legend">
+                    <div class="chart-legend-item">
+                        <div class="chart-legend-color" style="background: #00d9ff;"></div>
+                        <span>Scenario A</span>
+                    </div>
+                    <div class="chart-legend-item">
+                        <div class="chart-legend-color" style="background: #ffa500;"></div>
+                        <span>Scenario B</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side by Side Schedules -->
+            <h2>📅 Accumulation Schedules</h2>
+            <div class="phase-legend">
+                <div class="phase-legend-item">
+                    <div class="phase-legend-color p1"></div>
+                    <span>Phase 1: Contributions</span>
+                </div>
+                <div class="phase-legend-item">
+                    <div class="phase-legend-color p2"></div>
+                    <span>Phase 2: Growth Only</span>
+                </div>
+            </div>
+            <div class="scenarios-wrapper">
+                <div class="table-wrapper">
+                    <h3 style="color: #00d9ff; margin-bottom: 10px;">Scenario A</h3>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Deposit</th>
+                                <th>Interest</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body-a"></tbody>
+                    </table>
+                </div>
+                <div class="table-wrapper">
+                    <h3 style="color: #ffa500; margin-bottom: 10px;">Scenario B</h3>
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Deposit</th>
+                                <th>Interest</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body-b"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function getFormData(scenario) {
+            const form = document.getElementById(`calculator-form-${scenario}`);
+            const timingName = `contribution_timing_${scenario}`;
+            return {
+                starting_amount: parseFloat(form.querySelector('[name="starting_amount"]').value) || 0,
+                contribution_years: parseInt(form.querySelector('[name="contribution_years"]').value) || 0,
+                growth_years: parseInt(form.querySelector('[name="growth_years"]').value) || 0,
+                return_rate: parseFloat(form.querySelector('[name="return_rate"]').value) || 6,
+                contribution: parseFloat(form.querySelector('[name="contribution"]').value) || 0,
+                contribution_frequency: form.querySelector('[name="contribution_frequency"]').value,
+                contribution_timing: document.querySelector(`input[name="${timingName}"]:checked`).value
+            };
+        }
+
+        function copyScenario(from, to) {
+            const fromForm = document.getElementById(`calculator-form-${from}`);
+            const toForm = document.getElementById(`calculator-form-${to}`);
+
+            const fields = ['starting_amount', 'contribution_years', 'growth_years', 'return_rate', 'contribution', 'contribution_frequency'];
+            fields.forEach(field => {
+                toForm.querySelector(`[name="${field}"]`).value = fromForm.querySelector(`[name="${field}"]`).value;
+            });
+
+            const fromTiming = document.querySelector(`input[name="contribution_timing_${from}"]:checked`).value;
+            document.querySelector(`input[name="contribution_timing_${to}"][value="${fromTiming}"]`).checked = true;
+        }
+
+        async function calculateScenario(scenario) {
+            const formData = getFormData(scenario);
+
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            return await response.json();
+        }
+
+        function drawComparisonChart(resultA, resultB) {
+            const barChart = document.getElementById('bar-chart-combined');
+            const yAxis = document.getElementById('y-axis-combined');
+            barChart.innerHTML = '';
+            yAxis.innerHTML = '';
+
+            // Get ending balances by year for both scenarios
+            const dataA = resultA.schedule.map(r => ({ year: r.year, balance: r.ending_balance, phase: r.phase }));
+            const dataB = resultB.schedule.map(r => ({ year: r.year, balance: r.ending_balance, phase: r.phase }));
+
+            const maxYears = Math.max(dataA.length, dataB.length);
+            const maxValue = Math.max(
+                ...dataA.map(d => d.balance),
+                ...dataB.map(d => d.balance)
+            );
+
+            const chartHeight = 260;
+
+            // Y-axis labels
+            const yAxisSteps = 5;
+            for (let i = yAxisSteps; i >= 0; i--) {
+                const value = (maxValue / yAxisSteps) * i;
+                const label = document.createElement('div');
+                label.className = 'y-axis-label';
+                label.textContent = formatCurrency(value);
+                yAxis.appendChild(label);
+            }
+
+            // Create grouped bars for each year
+            for (let year = 1; year <= maxYears; year++) {
+                const barGroup = document.createElement('div');
+                barGroup.className = 'bar-group';
+                barGroup.style.flexDirection = 'row';
+                barGroup.style.alignItems = 'flex-end';
+                barGroup.style.gap = '2px';
+
+                const yearDataA = dataA.find(d => d.year === year);
+                const yearDataB = dataB.find(d => d.year === year);
+
+                // Bar A
+                if (yearDataA) {
+                    const barA = document.createElement('div');
+                    barA.className = 'bar-segment scenario-a';
+                    barA.style.height = (yearDataA.balance / maxValue * chartHeight) + 'px';
+                    barA.style.width = '18px';
+                    barA.style.borderRadius = '3px 3px 0 0';
+                    barA.title = `A Year ${year}: ${formatCurrency(yearDataA.balance)}`;
+                    barGroup.appendChild(barA);
+                }
+
+                // Bar B
+                if (yearDataB) {
+                    const barB = document.createElement('div');
+                    barB.className = 'bar-segment scenario-b';
+                    barB.style.height = (yearDataB.balance / maxValue * chartHeight) + 'px';
+                    barB.style.width = '18px';
+                    barB.style.borderRadius = '3px 3px 0 0';
+                    barB.title = `B Year ${year}: ${formatCurrency(yearDataB.balance)}`;
+                    barGroup.appendChild(barB);
+                }
+
+                // Year label wrapper
+                const labelWrapper = document.createElement('div');
+                labelWrapper.style.position = 'absolute';
+                labelWrapper.style.bottom = '-25px';
+                labelWrapper.style.left = '50%';
+                labelWrapper.style.transform = 'translateX(-50%)';
+
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = 'Y' + year;
+                label.style.marginTop = '0';
+                labelWrapper.appendChild(label);
+
+                barGroup.style.position = 'relative';
+                barGroup.appendChild(labelWrapper);
+
+                barChart.appendChild(barGroup);
+            }
+        }
+
+        function updateScheduleTable(schedule, tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = schedule.map((row, index) => {
+                const isPhaseTransition = index > 0 && schedule[index - 1].phase === 1 && row.phase === 2;
+                const phaseClass = row.phase === 1 ? 'phase1' : 'phase2';
+                const transitionClass = isPhaseTransition ? 'phase-transition' : '';
+                const phaseIndicator = row.phase === 1
+                    ? '<span class="phase-indicator p1">P1</span>'
+                    : '<span class="phase-indicator p2">P2</span>';
+
+                return `
+                    <tr class="${phaseClass} ${transitionClass}">
+                        <td>${row.year}${phaseIndicator}</td>
+                        <td>${row.deposit > 0 ? formatCurrency(row.deposit) : '—'}</td>
+                        <td>${formatCurrency(row.interest)}</td>
+                        <td>${formatCurrency(row.ending_balance)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateComparison(resultA, resultB) {
+            // Update Scenario A
+            document.getElementById('end-balance-a').textContent = formatCurrency(resultA.end_balance);
+            document.getElementById('phase1-balance-a').textContent = formatCurrency(resultA.phase1_end_balance);
+            document.getElementById('total-contributions-a').textContent = formatCurrency(resultA.starting_amount + resultA.total_contributions);
+            document.getElementById('total-interest-a').textContent = formatCurrency(resultA.total_interest);
+            document.getElementById('total-years-a').textContent = resultA.phase1_years + resultA.phase2_years;
+
+            // Update Scenario B
+            document.getElementById('end-balance-b').textContent = formatCurrency(resultB.end_balance);
+            document.getElementById('phase1-balance-b').textContent = formatCurrency(resultB.phase1_end_balance);
+            document.getElementById('total-contributions-b').textContent = formatCurrency(resultB.starting_amount + resultB.total_contributions);
+            document.getElementById('total-interest-b').textContent = formatCurrency(resultB.total_interest);
+            document.getElementById('total-years-b').textContent = resultB.phase1_years + resultB.phase2_years;
+
+            // Calculate differences and highlight winners
+            const balanceDiff = resultA.end_balance - resultB.end_balance;
+            const interestDiff = resultA.total_interest - resultB.total_interest;
+
+            // Balance comparison
+            const balanceA = document.getElementById('end-balance-a');
+            const balanceB = document.getElementById('end-balance-b');
+            const diffBalanceA = document.getElementById('diff-balance-a');
+            const diffBalanceB = document.getElementById('diff-balance-b');
+
+            if (balanceDiff > 0) {
+                balanceA.classList.add('winner');
+                balanceB.classList.remove('winner');
+                diffBalanceA.textContent = `+${formatCurrency(balanceDiff)}`;
+                diffBalanceA.className = 'difference-indicator positive';
+                diffBalanceB.textContent = `-${formatCurrency(balanceDiff)}`;
+                diffBalanceB.className = 'difference-indicator negative';
+            } else if (balanceDiff < 0) {
+                balanceB.classList.add('winner');
+                balanceA.classList.remove('winner');
+                diffBalanceB.textContent = `+${formatCurrency(-balanceDiff)}`;
+                diffBalanceB.className = 'difference-indicator positive';
+                diffBalanceA.textContent = `-${formatCurrency(-balanceDiff)}`;
+                diffBalanceA.className = 'difference-indicator negative';
+            } else {
+                balanceA.classList.remove('winner');
+                balanceB.classList.remove('winner');
+                diffBalanceA.textContent = '';
+                diffBalanceB.textContent = '';
+            }
+
+            // Interest comparison
+            const interestA = document.getElementById('total-interest-a');
+            const interestB = document.getElementById('total-interest-b');
+            const diffInterestA = document.getElementById('diff-interest-a');
+            const diffInterestB = document.getElementById('diff-interest-b');
+
+            if (interestDiff > 0) {
+                interestA.classList.add('winner');
+                interestB.classList.remove('winner');
+                diffInterestA.textContent = `+${formatCurrency(interestDiff)}`;
+                diffInterestA.className = 'difference-indicator positive';
+                diffInterestB.textContent = '';
+                diffInterestB.className = 'difference-indicator';
+            } else if (interestDiff < 0) {
+                interestB.classList.add('winner');
+                interestA.classList.remove('winner');
+                diffInterestB.textContent = `+${formatCurrency(-interestDiff)}`;
+                diffInterestB.className = 'difference-indicator positive';
+                diffInterestA.textContent = '';
+                diffInterestA.className = 'difference-indicator';
+            } else {
+                interestA.classList.remove('winner');
+                interestB.classList.remove('winner');
+                diffInterestA.textContent = '';
+                diffInterestB.textContent = '';
+            }
+        }
+
+        async function calculateBoth() {
+            try {
+                const [resultA, resultB] = await Promise.all([
+                    calculateScenario('a'),
+                    calculateScenario('b')
+                ]);
+
+                if (resultA.success && resultB.success) {
+                    updateComparison(resultA, resultB);
+                    drawComparisonChart(resultA, resultB);
+                    updateScheduleTable(resultA.schedule, 'schedule-body-a');
+                    updateScheduleTable(resultB.schedule, 'schedule-body-b');
+
+                    document.getElementById('results-card').classList.add('visible');
+                    document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error calculating scenarios');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Calculate on page load
+        calculateBoth();
+    </script>
+</body>
+
+</html>
