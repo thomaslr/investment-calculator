@@ -367,6 +367,113 @@
             cursor: pointer;
         }
 
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+        }
+
+        .toggle-switch input:checked+.toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .inflation-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 204, 0, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+        }
+
+        /* Collapsible Sections */
+        .collapsible-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            padding: 10px 0;
+            user-select: none;
+        }
+
+        .collapsible-header h2 {
+            margin: 0;
+        }
+
+        .collapse-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+            color: #aaa;
+            order: -1;
+        }
+
+        .collapsible-header:hover .collapse-icon {
+            color: #fff;
+        }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .inflation-adjusted {
+            color: #ffcc00 !important;
+            font-style: italic;
+        }
+
+        .inflation-label {
+            font-size: 0.7rem;
+            color: #ffcc00;
+            margin-top: 4px;
+        }
+
         .calculate-btn {
             width: 100%;
             padding: 18px;
@@ -491,6 +598,15 @@
 
         .legend-color.interest {
             background: #ff6b6b;
+        }
+
+        .legend-color.fees {
+            background: #ff00ff;
+        }
+
+        .legend-color.no-fees {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px dashed #fff;
         }
 
         .schedule-table {
@@ -664,18 +780,20 @@
             display: none;
             position: absolute;
             bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
+            left: 0;
+            background: rgba(0, 0, 0, 0.95);
             padding: 10px;
             border-radius: 8px;
             font-size: 0.75rem;
             white-space: nowrap;
             z-index: 100;
             margin-bottom: 10px;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .bar-group:hover .bar-tooltip {
+        .bar-group:hover .bar-tooltip,
+        div[style*="position: relative"]:hover>.bar-tooltip {
             display: block;
         }
 
@@ -683,10 +801,9 @@
             content: '';
             position: absolute;
             top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 20px;
             border: 6px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.9);
+            border-top-color: rgba(0, 0, 0, 0.95);
         }
 
         .phase-marker {
@@ -745,6 +862,27 @@
         .bar-chart-wrapper {
             position: relative;
             margin-left: 80px;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        /* Hide scrollbar by default, show only when needed */
+        .bar-chart-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .bar-chart-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .bar-chart-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .bar-chart-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .chart-legend {
@@ -778,6 +916,104 @@
 
         .chart-legend-color.interest {
             background: #ff6b6b;
+        }
+
+        .chart-legend-color.fees {
+            background: #ff00ff;
+        }
+
+        .chart-legend-color.no-fees {
+            background: transparent;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+        }
+
+        /* Fee Section Styles */
+        .fee-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 0, 255, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #ff00ff;
+        }
+
+        .fee-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ff00ff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fee-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .fee-impact-positive {
+            color: #00ff88;
+        }
+
+        .fee-impact-negative {
+            color: #ff00ff;
+        }
+
+        /* Stacked Chart Styles */
+        .stacked-chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stacked-bar {
+            display: flex;
+            flex-direction: column-reverse;
+            border-radius: 4px 4px 0 0;
+            overflow: visible;
+            position: relative;
+        }
+
+        .stacked-segment {
+            width: 100%;
+            transition: opacity 0.3s;
+            position: relative;
+        }
+
+        .stacked-segment.starting {
+            background: #00d9ff;
+        }
+
+        .stacked-segment.contributions {
+            background: #00ff88;
+        }
+
+        .stacked-segment.interest {
+            background: #ff6b6b;
+        }
+
+        .no-fee-indicator {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px dashed rgba(255, 255, 255, 0.7);
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            background: rgba(255, 0, 255, 0.15);
+            pointer-events: none;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 60px;
+            position: relative;
+            padding-top: 50px;
         }
 
         @media (max-width: 600px) {
@@ -821,6 +1057,10 @@
                             Accumulation Period
                         </div>
                         <div class="form-grid">
+                            <div class="form-group">
+                                <label>Delay Start (Years)</label>
+                                <input type="number" name="delay_years" value="0" min="0" max="50">
+                            </div>
                             <div class="form-group">
                                 <label>Starting Amount ($)</label>
                                 <input type="number" name="starting_amount" value="20000" min="0" step="100">
@@ -872,6 +1112,45 @@
                             <input type="number" name="return_rate" value="6" min="0" max="50" step="0.1">
                         </div>
                     </div>
+                    <div class="inflation-section">
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                                <label style="margin-bottom: 0;">📈 Adjust for Inflation</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="inflation-toggle-a" class="inflation-toggle-sync">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" id="inflation-rate-group-a" style="display: none;">
+                                <label>Inflation Rate (% per year)</label>
+                                <input type="number" id="inflation-rate-a" class="inflation-rate-sync" value="2" min="0"
+                                    max="20" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fee-section">
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                                <label style="margin-bottom: 0;">💸 Include Fees</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="fee-toggle-a" class="fee-toggle-sync" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="fee-grid" id="fee-inputs-a">
+                            <div class="form-group">
+                                <label>Fund Fee (% per year)</label>
+                                <input type="number" name="fund_fee" class="fee-sync fund-fee-sync" value="0.5" min="0"
+                                    max="5" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Platform Fee (% per year)</label>
+                                <input type="number" name="platform_fee" class="fee-sync platform-fee-sync" value="0.25"
+                                    min="0" max="5" step="0.01">
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -891,6 +1170,10 @@
                             Accumulation Period
                         </div>
                         <div class="form-grid">
+                            <div class="form-group">
+                                <label>Delay Start (Years)</label>
+                                <input type="number" name="delay_years" value="0" min="0" max="50">
+                            </div>
                             <div class="form-group">
                                 <label>Starting Amount ($)</label>
                                 <input type="number" name="starting_amount" value="10000" min="0" step="100">
@@ -942,6 +1225,45 @@
                             <input type="number" name="return_rate" value="7" min="0" max="50" step="0.1">
                         </div>
                     </div>
+                    <div class="inflation-section">
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                                <label style="margin-bottom: 0;">📈 Adjust for Inflation</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="inflation-toggle-b" class="inflation-toggle-sync">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" id="inflation-rate-group-b" style="display: none;">
+                                <label>Inflation Rate (% per year)</label>
+                                <input type="number" id="inflation-rate-b" class="inflation-rate-sync" value="2" min="0"
+                                    max="20" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fee-section">
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                                <label style="margin-bottom: 0;">💸 Include Fees</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="fee-toggle-b" class="fee-toggle-sync" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="fee-grid" id="fee-inputs-b">
+                            <div class="form-group">
+                                <label>Fund Fee (% per year)</label>
+                                <input type="number" name="fund_fee" class="fee-sync fund-fee-sync" value="0.5" min="0"
+                                    max="5" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Platform Fee (% per year)</label>
+                                <input type="number" name="platform_fee" class="fee-sync platform-fee-sync" value="0.25"
+                                    min="0" max="5" step="0.01">
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -951,133 +1273,267 @@
 
         <!-- Comparison Results -->
         <div class="comparison-card results-card" id="results-card">
-            <h2>⚖️ Scenario Comparison</h2>
-
-            <div class="comparison-grid">
-                <div class="comparison-column scenario-a">
-                    <div class="comparison-header">Scenario A</div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Final Balance</div>
-                        <div class="comparison-stat-value" id="end-balance-a">$0.00</div>
-                        <div class="difference-indicator" id="diff-balance-a"></div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">After Phase 1</div>
-                        <div class="comparison-stat-value" id="phase1-balance-a">$0.00</div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Total Contributed</div>
-                        <div class="comparison-stat-value" id="total-contributions-a">$0.00</div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Interest Earned</div>
-                        <div class="comparison-stat-value" id="total-interest-a">$0.00</div>
-                        <div class="difference-indicator" id="diff-interest-a"></div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Total Years</div>
-                        <div class="comparison-stat-value" id="total-years-a">0</div>
-                    </div>
-                </div>
-
-                <div class="comparison-vs">
-                    <div class="vs-badge">VS</div>
-                </div>
-
-                <div class="comparison-column scenario-b">
-                    <div class="comparison-header">Scenario B</div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Final Balance</div>
-                        <div class="comparison-stat-value" id="end-balance-b">$0.00</div>
-                        <div class="difference-indicator" id="diff-balance-b"></div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">After Phase 1</div>
-                        <div class="comparison-stat-value" id="phase1-balance-b">$0.00</div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Total Contributed</div>
-                        <div class="comparison-stat-value" id="total-contributions-b">$0.00</div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Interest Earned</div>
-                        <div class="comparison-stat-value" id="total-interest-b">$0.00</div>
-                        <div class="difference-indicator" id="diff-interest-b"></div>
-                    </div>
-                    <div class="comparison-stat">
-                        <div class="comparison-stat-label">Total Years</div>
-                        <div class="comparison-stat-value" id="total-years-b">0</div>
-                    </div>
-                </div>
+            <div class="collapsible-header" onclick="toggleCollapse('comparison-content', this)">
+                <h2>⚖️ Scenario Comparison</h2>
+                <span class="collapse-icon">▼</span>
             </div>
 
-            <!-- Combined Growth Chart -->
-            <div class="bar-chart-container combined-chart-container">
-                <div class="bar-chart-title">📈 Growth Comparison Over Time</div>
-                <div class="y-axis" id="y-axis-combined">
-                </div>
-                <div class="bar-chart-wrapper">
-                    <div class="bar-chart" id="bar-chart-combined">
+            <div class="collapsible-content" id="comparison-content">
+                <div class="comparison-grid">
+                    <div class="comparison-column scenario-a">
+                        <div class="comparison-header">Scenario A</div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Final Balance</div>
+                            <div class="comparison-stat-value" id="end-balance-a">$0.00</div>
+                            <div class="inflation-label" id="inflation-adjusted-a" style="display: none;"></div>
+                            <div class="difference-indicator" id="diff-balance-a"></div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">After Phase 1</div>
+                            <div class="comparison-stat-value" id="phase1-balance-a">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Total Contributed</div>
+                            <div class="comparison-stat-value" id="total-contributions-a">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Interest Earned</div>
+                            <div class="comparison-stat-value" id="total-interest-a">$0.00</div>
+                            <div class="difference-indicator" id="diff-interest-a"></div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Total Fees Paid</div>
+                            <div class="comparison-stat-value fee-impact-negative" id="total-fees-a">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Lost to Fees</div>
+                            <div class="comparison-stat-value fee-impact-negative" id="fee-impact-a">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Total Years</div>
+                            <div class="comparison-stat-value" id="total-years-a">0</div>
+                        </div>
                     </div>
-                </div>
-                <div class="chart-legend">
-                    <div class="chart-legend-item">
-                        <div class="chart-legend-color" style="background: #00d9ff;"></div>
-                        <span>Scenario A</span>
-                    </div>
-                    <div class="chart-legend-item">
-                        <div class="chart-legend-color" style="background: #ffa500;"></div>
-                        <span>Scenario B</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Side by Side Schedules -->
-            <h2>📅 Accumulation Schedules</h2>
-            <div class="phase-legend">
-                <div class="phase-legend-item">
-                    <div class="phase-legend-color p1"></div>
-                    <span>Phase 1: Contributions</span>
-                </div>
-                <div class="phase-legend-item">
-                    <div class="phase-legend-color p2"></div>
-                    <span>Phase 2: Growth Only</span>
-                </div>
+                    <div class="comparison-vs">
+                        <div class="vs-badge">VS</div>
+                    </div>
+
+                    <div class="comparison-column scenario-b">
+                        <div class="comparison-header">Scenario B</div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Final Balance</div>
+                            <div class="comparison-stat-value" id="end-balance-b">$0.00</div>
+                            <div class="inflation-label" id="inflation-adjusted-b" style="display: none;"></div>
+                            <div class="difference-indicator" id="diff-balance-b"></div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">After Phase 1</div>
+                            <div class="comparison-stat-value" id="phase1-balance-b">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Total Contributed</div>
+                            <div class="comparison-stat-value" id="total-contributions-b">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Interest Earned</div>
+                            <div class="comparison-stat-value" id="total-interest-b">$0.00</div>
+                            <div class="difference-indicator" id="diff-interest-b"></div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Total Fees Paid</div>
+                            <div class="comparison-stat-value fee-impact-negative" id="total-fees-b">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Lost to Fees</div>
+                            <div class="comparison-stat-value fee-impact-negative" id="fee-impact-b">$0.00</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-label">Total Years</div>
+                            <div class="comparison-stat-value" id="total-years-b">0</div>
+                        </div>
+                    </div>
+                </div><!-- End comparison-grid -->
+            </div><!-- End comparison-content -->
+        </div>
+
+        <!-- Chart Card -->
+        <div class="comparison-card results-card" id="chart-card" style="display: none;">
+            <div class="collapsible-header" onclick="toggleCollapse('chart-content', this)">
+                <h2>📊 Value Breakdown Chart</h2>
+                <span class="collapse-icon">▼</span>
             </div>
-            <div class="scenarios-wrapper">
-                <div class="table-wrapper">
-                    <h3 style="color: #00d9ff; margin-bottom: 10px;">Scenario A</h3>
-                    <table class="schedule-table">
-                        <thead>
-                            <tr>
-                                <th>Year</th>
-                                <th>Deposit</th>
-                                <th>Interest</th>
-                                <th>Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody id="schedule-body-a"></tbody>
-                    </table>
+            <div class="collapsible-content" id="chart-content">
+                <div class="stacked-chart-container">
+                    <div class="bar-chart-title">Value Breakdown Comparison Over Time</div>
+                    <div class="y-axis" id="y-axis-stacked-combined"></div>
+                    <div class="bar-chart-wrapper">
+                        <div class="bar-chart" id="stacked-chart-combined"></div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="chart-legend-item">
+                            <div class="chart-legend-color"
+                                style="background: linear-gradient(to right, #00d9ff 50%, #0099cc 50%);"></div>
+                            <span>Initial Investment</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div class="chart-legend-color"
+                                style="background: linear-gradient(to right, #00ff88 50%, #00cc66 50%);"></div>
+                            <span>Contributions</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div class="chart-legend-color"
+                                style="background: linear-gradient(to right, #ff6b6b 50%, #cc5555 50%);"></div>
+                            <span>Interest Earned</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div class="chart-legend-color no-fees"></div>
+                            <span>Without Fees</span>
+                        </div>
+                        <div class="chart-legend-item"
+                            style="margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.3);">
+                            <div
+                                style="width: 16px; height: 16px; border: 2px solid #00d9ff; border-radius: 4px; background: #00d9ff;">
+                            </div>
+                            <span>Scenario A (bright)</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div
+                                style="width: 16px; height: 16px; border: 2px solid #ffa500; border-radius: 4px; background: #0099cc;">
+                            </div>
+                            <span>Scenario B (muted)</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="table-wrapper">
-                    <h3 style="color: #ffa500; margin-bottom: 10px;">Scenario B</h3>
-                    <table class="schedule-table">
-                        <thead>
-                            <tr>
-                                <th>Year</th>
-                                <th>Deposit</th>
-                                <th>Interest</th>
-                                <th>Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody id="schedule-body-b"></tbody>
-                    </table>
-                </div>
+            </div><!-- End chart-content -->
+        </div>
+
+        <!-- Schedules Card -->
+        <div class="comparison-card results-card" id="schedules-card" style="display: none;">
+            <div class="collapsible-header" onclick="toggleCollapse('schedules-content', this)">
+                <h2>📅 Accumulation Schedules</h2>
+                <span class="collapse-icon">▼</span>
             </div>
+            <div class="collapsible-content" id="schedules-content">
+                <div class="phase-legend">
+                    <div class="phase-legend-item">
+                        <div class="phase-legend-color p1"></div>
+                        <span>Phase 1: Contributions</span>
+                    </div>
+                    <div class="phase-legend-item">
+                        <div class="phase-legend-color p2"></div>
+                        <span>Phase 2: Growth Only</span>
+                    </div>
+                </div>
+                <div class="scenarios-wrapper">
+                    <div class="table-wrapper">
+                        <h3 style="color: #00d9ff; margin-bottom: 10px;">Scenario A</h3>
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Deposit</th>
+                                    <th>Interest</th>
+                                    <th>Fees</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-body-a"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-wrapper">
+                        <h3 style="color: #ffa500; margin-bottom: 10px;">Scenario B</h3>
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Deposit</th>
+                                    <th>Interest</th>
+                                    <th>Fees</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-body-b"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div><!-- End schedules-content -->
         </div>
     </div>
 
     <script>
+        // Toggle collapse function
+        function toggleCollapse(contentId, headerElement) {
+            const content = document.getElementById(contentId);
+            const icon = headerElement.querySelector('.collapse-icon');
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        // Independent inflation toggle for Scenario A
+        document.getElementById('inflation-toggle-a').addEventListener('change', function () {
+            document.getElementById('inflation-rate-group-a').style.display = this.checked ? 'flex' : 'none';
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
+        // Independent inflation toggle for Scenario B
+        document.getElementById('inflation-toggle-b').addEventListener('change', function () {
+            document.getElementById('inflation-rate-group-b').style.display = this.checked ? 'flex' : 'none';
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
+        // Independent inflation rate change handlers
+        document.getElementById('inflation-rate-a').addEventListener('change', function () {
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+        document.getElementById('inflation-rate-b').addEventListener('change', function () {
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
+        // Independent fee toggle for Scenario A
+        document.getElementById('fee-toggle-a').addEventListener('change', function () {
+            document.getElementById('fee-inputs-a').style.display = this.checked ? 'grid' : 'none';
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
+        // Independent fee toggle for Scenario B
+        document.getElementById('fee-toggle-b').addEventListener('change', function () {
+            document.getElementById('fee-inputs-b').style.display = this.checked ? 'grid' : 'none';
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
+        // Fee input change handlers
+        document.querySelectorAll('.fund-fee-sync, .platform-fee-sync').forEach(input => {
+            input.addEventListener('change', function () {
+                if (document.getElementById('results-card').classList.contains('visible')) {
+                    calculateBoth(true);
+                }
+            });
+        });
+
+        function getInflationSettings(scenario) {
+            const enabled = document.getElementById(`inflation-toggle-${scenario}`).checked;
+            const rate = parseFloat(document.getElementById(`inflation-rate-${scenario}`).value) || 2;
+            return { enabled, rate };
+        }
+
+        function calculateInflationAdjusted(nominalValue, years, inflationRate) {
+            // Adjust for inflation using real purchasing power
+            return nominalValue / Math.pow(1 + inflationRate / 100, years);
+        }
+
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
@@ -1090,6 +1546,7 @@
         function getFormData(scenario) {
             const form = document.getElementById(`calculator-form-${scenario}`);
             const timingName = `contribution_timing_${scenario}`;
+            const feesEnabled = document.getElementById(`fee-toggle-${scenario}`).checked;
             return {
                 starting_amount: parseFloat(form.querySelector('[name="starting_amount"]').value) || 0,
                 contribution_years: parseInt(form.querySelector('[name="contribution_years"]').value) || 0,
@@ -1097,7 +1554,10 @@
                 return_rate: parseFloat(form.querySelector('[name="return_rate"]').value) || 6,
                 contribution: parseFloat(form.querySelector('[name="contribution"]').value) || 0,
                 contribution_frequency: form.querySelector('[name="contribution_frequency"]').value,
-                contribution_timing: document.querySelector(`input[name="${timingName}"]:checked`).value
+                contribution_timing: document.querySelector(`input[name="${timingName}"]:checked`).value,
+                fund_fee: feesEnabled ? (parseFloat(form.querySelector('[name="fund_fee"]').value) || 0) : 0,
+                platform_fee: feesEnabled ? (parseFloat(form.querySelector('[name="platform_fee"]').value) || 0) : 0,
+                delay_years: parseInt(form.querySelector('[name="delay_years"]').value) || 0
             };
         }
 
@@ -1105,7 +1565,7 @@
             const fromForm = document.getElementById(`calculator-form-${from}`);
             const toForm = document.getElementById(`calculator-form-${to}`);
 
-            const fields = ['starting_amount', 'contribution_years', 'growth_years', 'return_rate', 'contribution', 'contribution_frequency'];
+            const fields = ['starting_amount', 'contribution_years', 'growth_years', 'return_rate', 'contribution', 'contribution_frequency', 'fund_fee', 'platform_fee', 'delay_years'];
             fields.forEach(field => {
                 toForm.querySelector(`[name="${field}"]`).value = fromForm.querySelector(`[name="${field}"]`).value;
             });
@@ -1126,32 +1586,94 @@
             return await response.json();
         }
 
-        function drawComparisonChart(resultA, resultB) {
-            const barChart = document.getElementById('bar-chart-combined');
-            const yAxis = document.getElementById('y-axis-combined');
+        // Calculate nice round tick values for Y-axis
+        function calculateNiceTicks(maxValue, numTicks = 5) {
+            // Calculate a nice step size
+            const roughStep = maxValue / numTicks;
+            const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+            const residual = roughStep / magnitude;
+
+            // Round to nice values: 1, 2, 2.5, 5, 10
+            let niceStep;
+            if (residual <= 1) niceStep = magnitude;
+            else if (residual <= 2) niceStep = 2 * magnitude;
+            else if (residual <= 2.5) niceStep = 2.5 * magnitude;
+            else if (residual <= 5) niceStep = 5 * magnitude;
+            else niceStep = 10 * magnitude;
+
+            // Generate tick values
+            const ticks = [];
+            let tick = 0;
+            while (tick <= maxValue) {
+                ticks.push(tick);
+                tick += niceStep;
+            }
+            // Ensure we have a tick above the max value
+            if (ticks[ticks.length - 1] < maxValue) {
+                ticks.push(tick);
+            }
+
+            return ticks;
+        }
+
+        function drawCombinedStackedChart(resultA, resultB) {
+            const barChart = document.getElementById('stacked-chart-combined');
+            const yAxis = document.getElementById('y-axis-stacked-combined');
             barChart.innerHTML = '';
             yAxis.innerHTML = '';
 
-            // Get ending balances by year for both scenarios
-            const dataA = resultA.schedule.map(r => ({ year: r.year, balance: r.ending_balance, phase: r.phase }));
-            const dataB = resultB.schedule.map(r => ({ year: r.year, balance: r.ending_balance, phase: r.phase }));
+            const scheduleA = resultA.schedule;
+            const scheduleB = resultB.schedule;
+            const startingAmountA = resultA.starting_amount;
+            const startingAmountB = resultB.starting_amount;
 
-            const maxYears = Math.max(dataA.length, dataB.length);
-            const maxValue = Math.max(
-                ...dataA.map(d => d.balance),
-                ...dataB.map(d => d.balance)
-            );
-
+            // Find max value across both scenarios
+            const maxValueA = Math.max(...scheduleA.map(r => r.balance_without_fees));
+            const maxValueB = Math.max(...scheduleB.map(r => r.balance_without_fees));
+            const dataMaxValue = Math.max(maxValueA, maxValueB);
+            const maxYears = Math.max(scheduleA.length, scheduleB.length);
             const chartHeight = 260;
 
-            // Y-axis labels
-            const yAxisSteps = 5;
-            for (let i = yAxisSteps; i >= 0; i--) {
-                const value = (maxValue / yAxisSteps) * i;
+            // Calculate nice round tick values
+            const ticks = calculateNiceTicks(dataMaxValue, 5);
+            const maxValue = ticks[ticks.length - 1]; // Use the top tick as max for scaling
+
+            // Y-axis labels and grid lines
+            for (let i = ticks.length - 1; i >= 0; i--) {
+                const tickValue = ticks[i];
                 const label = document.createElement('div');
                 label.className = 'y-axis-label';
-                label.textContent = formatCurrency(value);
+                label.textContent = formatCurrency(tickValue);
                 yAxis.appendChild(label);
+
+                // Add horizontal grid line with label
+                if (tickValue > 0) {
+                    const gridLine = document.createElement('div');
+                    gridLine.className = 'chart-grid-line';
+                    gridLine.style.position = 'absolute';
+                    gridLine.style.left = '0';
+                    gridLine.style.right = '0';
+                    gridLine.style.bottom = ((tickValue / maxValue) * chartHeight) + 'px';
+                    gridLine.style.height = '1px';
+                    gridLine.style.borderTop = '1px dashed rgba(255, 255, 255, 0.3)';
+                    gridLine.style.pointerEvents = 'none';
+                    gridLine.style.zIndex = '1';
+
+                    // Add label on the grid line
+                    const gridLabel = document.createElement('span');
+                    gridLabel.style.position = 'absolute';
+                    gridLabel.style.left = '5px';
+                    gridLabel.style.top = '-10px';
+                    gridLabel.style.fontSize = '0.7rem';
+                    gridLabel.style.color = 'rgba(255, 255, 255, 0.7)';
+                    gridLabel.style.background = 'rgba(26, 26, 46, 0.8)';
+                    gridLabel.style.padding = '2px 6px';
+                    gridLabel.style.borderRadius = '3px';
+                    gridLabel.textContent = formatCurrency(tickValue);
+                    gridLine.appendChild(gridLabel);
+
+                    barChart.appendChild(gridLine);
+                }
             }
 
             // Create grouped bars for each year
@@ -1160,51 +1682,122 @@
                 barGroup.className = 'bar-group';
                 barGroup.style.flexDirection = 'row';
                 barGroup.style.alignItems = 'flex-end';
-                barGroup.style.gap = '2px';
+                barGroup.style.gap = '4px';
+                barGroup.style.position = 'relative';
+                barGroup.style.zIndex = '2';
 
-                const yearDataA = dataA.find(d => d.year === year);
-                const yearDataB = dataB.find(d => d.year === year);
+                const rowA = scheduleA.find(r => r.year === year);
+                const rowB = scheduleB.find(r => r.year === year);
 
-                // Bar A
-                if (yearDataA) {
-                    const barA = document.createElement('div');
-                    barA.className = 'bar-segment scenario-a';
-                    barA.style.height = (yearDataA.balance / maxValue * chartHeight) + 'px';
-                    barA.style.width = '18px';
-                    barA.style.borderRadius = '3px 3px 0 0';
-                    barA.title = `A Year ${year}: ${formatCurrency(yearDataA.balance)}`;
-                    barGroup.appendChild(barA);
+                // Scenario A stacked bar
+                if (rowA) {
+                    const stackA = createStackedBar(rowA, startingAmountA, maxValue, chartHeight, '#00d9ff', 'A');
+                    barGroup.appendChild(stackA);
                 }
 
-                // Bar B
-                if (yearDataB) {
-                    const barB = document.createElement('div');
-                    barB.className = 'bar-segment scenario-b';
-                    barB.style.height = (yearDataB.balance / maxValue * chartHeight) + 'px';
-                    barB.style.width = '18px';
-                    barB.style.borderRadius = '3px 3px 0 0';
-                    barB.title = `B Year ${year}: ${formatCurrency(yearDataB.balance)}`;
-                    barGroup.appendChild(barB);
+                // Scenario B stacked bar
+                if (rowB) {
+                    const stackB = createStackedBar(rowB, startingAmountB, maxValue, chartHeight, '#ffa500', 'B');
+                    barGroup.appendChild(stackB);
                 }
 
-                // Year label wrapper
+                // Year label
                 const labelWrapper = document.createElement('div');
                 labelWrapper.style.position = 'absolute';
                 labelWrapper.style.bottom = '-25px';
                 labelWrapper.style.left = '50%';
                 labelWrapper.style.transform = 'translateX(-50%)';
-
                 const label = document.createElement('div');
                 label.className = 'bar-label';
                 label.textContent = 'Y' + year;
-                label.style.marginTop = '0';
                 labelWrapper.appendChild(label);
-
-                barGroup.style.position = 'relative';
                 barGroup.appendChild(labelWrapper);
 
                 barChart.appendChild(barGroup);
             }
+        }
+
+        function createStackedBar(row, startingAmount, maxValue, chartHeight, borderColor, scenarioLabel) {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+
+            const totalBalance = row.ending_balance;
+            const startingProportion = startingAmount / totalBalance;
+            const contributionsProportion = row.cumulative_contributions / totalBalance;
+            const interestProportion = 1 - startingProportion - contributionsProportion;
+
+            const stackHeight = (totalBalance / maxValue) * chartHeight;
+            const noFeeHeight = (row.balance_without_fees / maxValue) * chartHeight;
+
+            // Determine if this is Scenario A or B for different shading
+            const isScenarioA = scenarioLabel === 'A';
+            const opacity = isScenarioA ? '1' : '0.7';
+            const startingColor = isScenarioA ? '#00d9ff' : '#0099cc';
+            const contributionsColor = isScenarioA ? '#00ff88' : '#00cc66';
+            const interestColor = isScenarioA ? '#ff6b6b' : '#cc5555';
+
+            // Create stacked bar container
+            const barStack = document.createElement('div');
+            barStack.className = 'stacked-bar';
+            barStack.style.height = stackHeight + 'px';
+            barStack.style.width = '20px';
+            barStack.style.position = 'relative';
+            barStack.style.border = `2px solid ${borderColor}`;
+            barStack.style.borderBottom = 'none';
+            barStack.style.boxSizing = 'border-box';
+
+            // Starting amount segment
+            const startingSegment = document.createElement('div');
+            startingSegment.className = 'stacked-segment';
+            startingSegment.style.height = (startingProportion * stackHeight) + 'px';
+            startingSegment.style.background = startingColor;
+            barStack.appendChild(startingSegment);
+
+            // Contributions segment
+            const contributionsSegment = document.createElement('div');
+            contributionsSegment.className = 'stacked-segment';
+            contributionsSegment.style.height = (contributionsProportion * stackHeight) + 'px';
+            contributionsSegment.style.background = contributionsColor;
+            barStack.appendChild(contributionsSegment);
+
+            // Interest segment
+            const interestSegment = document.createElement('div');
+            interestSegment.className = 'stacked-segment';
+            interestSegment.style.height = Math.max(0, interestProportion * stackHeight) + 'px';
+            interestSegment.style.background = interestColor;
+            barStack.appendChild(interestSegment);
+
+            // No-fee indicator
+            if (row.balance_without_fees > row.ending_balance) {
+                const noFeeIndicator = document.createElement('div');
+                noFeeIndicator.className = 'no-fee-indicator';
+                noFeeIndicator.style.height = noFeeHeight + 'px';
+                noFeeIndicator.style.bottom = '0';
+                noFeeIndicator.style.borderColor = borderColor;
+                barStack.appendChild(noFeeIndicator);
+            }
+
+            wrapper.appendChild(barStack);
+
+            // Tooltip - position differently for A vs B to avoid overlap
+            const tooltip = document.createElement('div');
+            tooltip.className = 'bar-tooltip';
+            tooltip.style.transform = isScenarioA ? 'translateX(-80%)' : 'translateX(-20%)';
+            const startingPct = (startingProportion * 100).toFixed(1);
+            const contribPct = (contributionsProportion * 100).toFixed(1);
+            const interestPct = (Math.max(0, interestProportion) * 100).toFixed(1);
+            const feeImpact = row.balance_without_fees - row.ending_balance;
+            tooltip.innerHTML = `
+                <strong>Scenario ${scenarioLabel} - Year ${row.year}</strong><br>
+                Balance: ${formatCurrency(row.ending_balance)}<br>
+                <span style="color:${startingColor}">Initial: ${formatCurrency(startingAmount)} (${startingPct}%)</span><br>
+                <span style="color:${contributionsColor}">Contributions: ${formatCurrency(row.cumulative_contributions)} (${contribPct}%)</span><br>
+                <span style="color:${interestColor}">Interest: ${formatCurrency(row.ending_balance - startingAmount - row.cumulative_contributions)} (${interestPct}%)</span><br>
+                ${feeImpact > 0 ? `<span style="color:#ff00ff">Lost to Fees: ${formatCurrency(feeImpact)}</span>` : ''}
+            `;
+            wrapper.appendChild(tooltip);
+
+            return wrapper;
         }
 
         function updateScheduleTable(schedule, tbodyId) {
@@ -1222,6 +1815,7 @@
                         <td>${row.year}${phaseIndicator}</td>
                         <td>${row.deposit > 0 ? formatCurrency(row.deposit) : '—'}</td>
                         <td>${formatCurrency(row.interest)}</td>
+                        <td style="color: #ff00ff">${row.fees_paid > 0 ? '-' + formatCurrency(row.fees_paid) : '—'}</td>
                         <td>${formatCurrency(row.ending_balance)}</td>
                     </tr>
                 `;
@@ -1229,19 +1823,48 @@
         }
 
         function updateComparison(resultA, resultB) {
+            const inflationA = getInflationSettings('a');
+            const inflationB = getInflationSettings('b');
+            const totalYearsA = resultA.phase1_years + resultA.phase2_years;
+            const totalYearsB = resultB.phase1_years + resultB.phase2_years;
+
             // Update Scenario A
             document.getElementById('end-balance-a').textContent = formatCurrency(resultA.end_balance);
             document.getElementById('phase1-balance-a').textContent = formatCurrency(resultA.phase1_end_balance);
             document.getElementById('total-contributions-a').textContent = formatCurrency(resultA.starting_amount + resultA.total_contributions);
             document.getElementById('total-interest-a').textContent = formatCurrency(resultA.total_interest);
-            document.getElementById('total-years-a').textContent = resultA.phase1_years + resultA.phase2_years;
+            document.getElementById('total-fees-a').textContent = formatCurrency(resultA.total_fees);
+            document.getElementById('fee-impact-a').textContent = formatCurrency(resultA.balance_without_fees - resultA.end_balance);
+            document.getElementById('total-years-a').textContent = totalYearsA;
 
             // Update Scenario B
             document.getElementById('end-balance-b').textContent = formatCurrency(resultB.end_balance);
             document.getElementById('phase1-balance-b').textContent = formatCurrency(resultB.phase1_end_balance);
             document.getElementById('total-contributions-b').textContent = formatCurrency(resultB.starting_amount + resultB.total_contributions);
             document.getElementById('total-interest-b').textContent = formatCurrency(resultB.total_interest);
-            document.getElementById('total-years-b').textContent = resultB.phase1_years + resultB.phase2_years;
+            document.getElementById('total-fees-b').textContent = formatCurrency(resultB.total_fees);
+            document.getElementById('fee-impact-b').textContent = formatCurrency(resultB.balance_without_fees - resultB.end_balance);
+            document.getElementById('total-years-b').textContent = totalYearsB;
+
+            // Show inflation-adjusted values if enabled (per scenario)
+            const inflationLabelA = document.getElementById('inflation-adjusted-a');
+            const inflationLabelB = document.getElementById('inflation-adjusted-b');
+
+            if (inflationA.enabled) {
+                const adjustedA = calculateInflationAdjusted(resultA.end_balance, totalYearsA, inflationA.rate);
+                inflationLabelA.textContent = `${formatCurrency(adjustedA)} in today's dollars`;
+                inflationLabelA.style.display = 'block';
+            } else {
+                inflationLabelA.style.display = 'none';
+            }
+
+            if (inflationB.enabled) {
+                const adjustedB = calculateInflationAdjusted(resultB.end_balance, totalYearsB, inflationB.rate);
+                inflationLabelB.textContent = `${formatCurrency(adjustedB)} in today's dollars`;
+                inflationLabelB.style.display = 'block';
+            } else {
+                inflationLabelB.style.display = 'none';
+            }
 
             // Calculate differences and highlight winners
             const balanceDiff = resultA.end_balance - resultB.end_balance;
@@ -1302,7 +1925,7 @@
             }
         }
 
-        async function calculateBoth() {
+        async function calculateBoth(skipScroll = false) {
             try {
                 const [resultA, resultB] = await Promise.all([
                     calculateScenario('a'),
@@ -1311,12 +1934,17 @@
 
                 if (resultA.success && resultB.success) {
                     updateComparison(resultA, resultB);
-                    drawComparisonChart(resultA, resultB);
+                    drawCombinedStackedChart(resultA, resultB);
                     updateScheduleTable(resultA.schedule, 'schedule-body-a');
                     updateScheduleTable(resultB.schedule, 'schedule-body-b');
 
                     document.getElementById('results-card').classList.add('visible');
-                    document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('results-card').style.display = 'block';
+                    document.getElementById('chart-card').style.display = 'block';
+                    document.getElementById('schedules-card').style.display = 'block';
+                    if (!skipScroll) {
+                        document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
+                    }
                 } else {
                     alert('Error calculating scenarios');
                 }
