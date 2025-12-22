@@ -291,13 +291,17 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
         }
 
         label {
@@ -724,18 +728,20 @@
             height: 300px;
             display: flex;
             align-items: flex-end;
-            justify-content: space-around;
+            justify-content: flex-start;
+            gap: 10px;
             padding: 0 10px;
             border-left: 2px solid rgba(255, 255, 255, 0.3);
             border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            min-width: fit-content;
         }
 
         .bar-group {
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 1;
-            max-width: 60px;
+            flex-shrink: 0;
+            width: 50px;
             position: relative;
         }
 
@@ -1069,7 +1075,7 @@
                                 <label>Contribution Years</label>
                                 <input type="number" name="contribution_years" value="10" min="0" max="50">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group full-width">
                                 <label>Contribution ($)</label>
                                 <div class="input-group">
                                     <input type="number" name="contribution" value="1000" min="0" step="50">
@@ -1182,7 +1188,7 @@
                                 <label>Contribution Years</label>
                                 <input type="number" name="contribution_years" value="15" min="0" max="50">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group full-width">
                                 <label>Contribution ($)</label>
                                 <div class="input-group">
                                     <input type="number" name="contribution" value="500" min="0" step="50">
@@ -1633,6 +1639,10 @@
             const dataMaxValue = Math.max(maxValueA, maxValueB);
             const maxYears = Math.max(scheduleA.length, scheduleB.length);
             const chartHeight = 260;
+
+            // Set minimum width based on number of years (60px per year group)
+            const minChartWidth = maxYears * 60 + 20;
+            barChart.style.minWidth = minChartWidth + 'px';
 
             // Calculate nice round tick values
             const ticks = calculateNiceTicks(dataMaxValue, 5);
