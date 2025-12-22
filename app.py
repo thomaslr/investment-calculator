@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 from dataclasses import dataclass
 from typing import List
 import math
+import random
+import numpy as np
 
 app = Flask(__name__)
 
@@ -248,6 +250,136 @@ def calculate():
                     }
                     for item in result.schedule
                 ],
+            }
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+@app.route("/simulate", methods=["POST"])
+def simulate():
+    """
+    Run Monte Carlo simulation using log-normal returns.
+    Returns percentile bands for visualization.
+    """
+    try:
+        data = request.json
+
+        starting_amount = float(data.get("starting_amount", 0))
+        contribution_years = int(data.get("contribution_years", 10))
+        growth_years = int(data.get("growth_years", 0))
+        expected_return = float(data.get("return_rate", 6)) / 100
+        volatility = float(data.get("volatility", 15)) / 100
+        contribution = float(data.get("contribution", 0))
+        contribution_frequency = data.get("contribution_frequency", "monthly")
+        contribution_timing = data.get("contribution_timing", "end")
+        fund_fee = float(data.get("fund_fee", 0)) / 100
+        platform_fee = float(data.get("platform_fee", 0)) / 100
+        delay_years = int(data.get("delay_years", 0))
+        num_simulations = int(data.get("num_simulations", 500))
+
+        total_fee_rate = fund_fee + platform_fee
+        total_years = delay_years + contribution_years + growth_years
+
+        # Convert contribution to monthly
+        monthly_contribution = (
+            contribution if contribution_frequency == "monthly" else contribution / 12
+        )
+
+        # Run simulations
+        all_paths = []
+        final_balances = []
+
+        for sim in range(num_simulations):
+            balance = 0
+            path = []
+
+            for year in range(1, total_years + 1):
+                if year <= delay_years:
+                    # Delay phase - no investment
+                    path.append(0)
+                    continue
+
+                # Initialize balance at start of investment period
+                if year == delay_years + 1:
+                    balance = starting_amount
+
+                in_contribution_phase = year <= (delay_years + contribution_years)
+
+                # Monthly simulation for this year
+                for month in range(12):
+                    # Add contribution at beginning if applicable
+                    if in_contribution_phase and contribution_timing == "beginning":
+                        balance += monthly_contribution
+
+                    # Generate random monthly return using log-normal distribution
+                    # Convert annual parameters to monthly
+                    monthly_expected = expected_return / 12
+                    monthly_vol = volatility / math.sqrt(12)
+
+                    # Log-normal return
+                    monthly_return = (
+                        np.random.lognormal(
+                            mean=math.log(1 + monthly_expected) - (monthly_vol**2) / 2,
+                            sigma=monthly_vol,
+                        )
+                        - 1
+                    )
+
+                    balance *= 1 + monthly_return
+
+                    # Apply monthly fees
+                    balance *= 1 - total_fee_rate / 12
+
+                    # Add contribution at end if applicable
+                    if in_contribution_phase and contribution_timing == "end":
+                        balance += monthly_contribution
+
+                path.append(max(0, balance))
+
+            all_paths.append(path)
+            final_balances.append(balance)
+
+        # Convert to numpy for percentile calculation
+        paths_array = np.array(all_paths)
+
+        # Calculate percentiles for each year
+        percentiles = {"p10": [], "p25": [], "p50": [], "p75": [], "p90": []}
+
+        for year_idx in range(total_years):
+            year_values = paths_array[:, year_idx]
+            percentiles["p10"].append(round(float(np.percentile(year_values, 10)), 2))
+            percentiles["p25"].append(round(float(np.percentile(year_values, 25)), 2))
+            percentiles["p50"].append(round(float(np.percentile(year_values, 50)), 2))
+            percentiles["p75"].append(round(float(np.percentile(year_values, 75)), 2))
+            percentiles["p90"].append(round(float(np.percentile(year_values, 90)), 2))
+
+        # Calculate summary statistics
+        final_array = np.array(final_balances)
+        total_invested = starting_amount + (
+            monthly_contribution * 12 * contribution_years
+        )
+
+        return jsonify(
+            {
+                "success": True,
+                "percentiles": percentiles,
+                "years": list(range(1, total_years + 1)),
+                "stats": {
+                    "median_final": round(float(np.median(final_array)), 2),
+                    "mean_final": round(float(np.mean(final_array)), 2),
+                    "p10_final": round(float(np.percentile(final_array, 10)), 2),
+                    "p90_final": round(float(np.percentile(final_array, 90)), 2),
+                    "best_case": round(float(np.max(final_array)), 2),
+                    "worst_case": round(float(np.min(final_array)), 2),
+                    "total_invested": round(total_invested, 2),
+                    "prob_double": round(
+                        float(np.mean(final_array >= total_invested * 2) * 100), 1
+                    ),
+                    "prob_positive": round(
+                        float(np.mean(final_array >= total_invested) * 100), 1
+                    ),
+                },
             }
         )
     except Exception as e:

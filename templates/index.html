@@ -966,6 +966,87 @@
             color: #ff00ff;
         }
 
+        /* Simulation Section Styles */
+        .simulation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(138, 43, 226, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #8a2be2;
+        }
+
+        .simulation-inputs {
+            margin-top: 15px;
+        }
+
+        .simulation-inputs select {
+            width: 100%;
+        }
+
+        /* Monte Carlo Chart Styles */
+        .simulation-chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .simulation-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .simulation-stat {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .simulation-stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .simulation-stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .simulation-stat-value.scenario-a {
+            color: #00d9ff;
+        }
+
+        .simulation-stat-value.scenario-b {
+            color: #ffa500;
+        }
+
+        .simulation-stat-subtext {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .monte-carlo-chart-wrapper {
+            position: relative;
+            display: flex;
+        }
+
+        .monte-carlo-chart-scroll {
+            flex: 1;
+            overflow-x: auto;
+            margin-left: 80px;
+        }
+
+        #monte-carlo-chart {
+            height: 300px;
+            min-width: 100%;
+        }
+
         /* Stacked Chart Styles */
         .stacked-chart-container {
             background: rgba(255, 255, 255, 0.05);
@@ -1157,6 +1238,37 @@
                             </div>
                         </div>
                     </div>
+                    <div class="simulation-section">
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                                <label style="margin-bottom: 0;">🎲 Monte Carlo Simulation</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="simulation-toggle-a">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="simulation-inputs" id="simulation-inputs-a" style="display: none;">
+                            <div class="form-group">
+                                <label>Volatility Preset</label>
+                                <select id="volatility-preset-a" onchange="updateVolatility('a')">
+                                    <option value="conservative" data-vol="8" data-ret="5">Conservative (8% vol, 5%
+                                        return)</option>
+                                    <option value="balanced" data-vol="12" data-ret="7">Balanced (12% vol, 7% return)
+                                    </option>
+                                    <option value="sp500" data-vol="16" data-ret="10" selected>S&P 500 (16% vol, 10%
+                                        return)</option>
+                                    <option value="aggressive" data-vol="22" data-ret="12">Aggressive (22% vol, 12%
+                                        return)</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="custom-volatility-group-a" style="display: none;">
+                                <label>Custom Volatility (% per year)</label>
+                                <input type="number" id="volatility-a" value="16" min="1" max="50" step="0.5">
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -1267,6 +1379,37 @@
                                 <label>Platform Fee (% per year)</label>
                                 <input type="number" name="platform_fee" class="fee-sync platform-fee-sync" value="0.25"
                                     min="0" max="5" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="simulation-section">
+                        <div class="form-grid" style="align-items: center;">
+                            <div class="form-group" style="flex-direction: row; align-items: center; gap: 15px;">
+                                <label style="margin-bottom: 0;">🎲 Monte Carlo Simulation</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="simulation-toggle-b">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="simulation-inputs" id="simulation-inputs-b" style="display: none;">
+                            <div class="form-group">
+                                <label>Volatility Preset</label>
+                                <select id="volatility-preset-b" onchange="updateVolatility('b')">
+                                    <option value="conservative" data-vol="8" data-ret="5">Conservative (8% vol, 5%
+                                        return)</option>
+                                    <option value="balanced" data-vol="12" data-ret="7">Balanced (12% vol, 7% return)
+                                    </option>
+                                    <option value="sp500" data-vol="16" data-ret="10" selected>S&P 500 (16% vol, 10%
+                                        return)</option>
+                                    <option value="aggressive" data-vol="22" data-ret="12">Aggressive (22% vol, 12%
+                                        return)</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="custom-volatility-group-b" style="display: none;">
+                                <label>Custom Volatility (% per year)</label>
+                                <input type="number" id="volatility-b" value="16" min="1" max="50" step="0.5">
                             </div>
                         </div>
                     </div>
@@ -1414,6 +1557,63 @@
             </div><!-- End chart-content -->
         </div>
 
+        <!-- Monte Carlo Simulation Card -->
+        <div class="comparison-card results-card" id="simulation-card" style="display: none;">
+            <div class="collapsible-header" onclick="toggleCollapse('simulation-content', this)">
+                <h2>🎲 Monte Carlo Simulation</h2>
+                <span class="collapse-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="simulation-content">
+                <div class="simulation-chart-container">
+                    <div class="bar-chart-title">Probability Distribution of Outcomes</div>
+                    <div class="simulation-stats-grid" id="simulation-stats">
+                        <!-- Stats will be populated by JS -->
+                    </div>
+                    <div class="monte-carlo-chart-wrapper">
+                        <div class="y-axis" id="y-axis-monte-carlo"></div>
+                        <div class="monte-carlo-chart-scroll">
+                            <canvas id="monte-carlo-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-legend" style="margin-top: 20px;">
+                        <div class="chart-legend-item">
+                            <div
+                                style="width: 16px; height: 16px; background: rgba(0, 217, 255, 0.2); border: 2px solid #00d9ff; border-radius: 4px;">
+                            </div>
+                            <span>10th-90th Percentile (A)</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div
+                                style="width: 16px; height: 16px; background: rgba(0, 217, 255, 0.4); border: 2px solid #00d9ff; border-radius: 4px;">
+                            </div>
+                            <span>25th-75th Percentile (A)</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div style="width: 16px; height: 3px; background: #00d9ff;"></div>
+                            <span>Median (A)</span>
+                        </div>
+                        <div class="chart-legend-item"
+                            style="margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.3);">
+                            <div
+                                style="width: 16px; height: 16px; background: rgba(255, 165, 0, 0.2); border: 2px solid #ffa500; border-radius: 4px;">
+                            </div>
+                            <span>10th-90th Percentile (B)</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div
+                                style="width: 16px; height: 16px; background: rgba(255, 165, 0, 0.4); border: 2px solid #ffa500; border-radius: 4px;">
+                            </div>
+                            <span>25th-75th Percentile (B)</span>
+                        </div>
+                        <div class="chart-legend-item">
+                            <div style="width: 16px; height: 3px; background: #ffa500;"></div>
+                            <span>Median (B)</span>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End simulation-content -->
+        </div>
+
         <!-- Schedules Card -->
         <div class="comparison-card results-card" id="schedules-card" style="display: none;">
             <div class="collapsible-header" onclick="toggleCollapse('schedules-content', this)">
@@ -1529,6 +1729,22 @@
             });
         });
 
+        // Simulation toggle for Scenario A
+        document.getElementById('simulation-toggle-a').addEventListener('change', function () {
+            document.getElementById('simulation-inputs-a').style.display = this.checked ? 'block' : 'none';
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
+        // Simulation toggle for Scenario B
+        document.getElementById('simulation-toggle-b').addEventListener('change', function () {
+            document.getElementById('simulation-inputs-b').style.display = this.checked ? 'block' : 'none';
+            if (document.getElementById('results-card').classList.contains('visible')) {
+                calculateBoth(true);
+            }
+        });
+
         function getInflationSettings(scenario) {
             const enabled = document.getElementById(`inflation-toggle-${scenario}`).checked;
             const rate = parseFloat(document.getElementById(`inflation-rate-${scenario}`).value) || 2;
@@ -1565,6 +1781,69 @@
                 platform_fee: feesEnabled ? (parseFloat(form.querySelector('[name="platform_fee"]').value) || 0) : 0,
                 delay_years: parseInt(form.querySelector('[name="delay_years"]').value) || 0
             };
+        }
+
+        function updateVolatility(scenario) {
+            const preset = document.getElementById(`volatility-preset-${scenario}`);
+            const customGroup = document.getElementById(`custom-volatility-group-${scenario}`);
+            const volInput = document.getElementById(`volatility-${scenario}`);
+            const form = document.getElementById(`calculator-form-${scenario}`);
+            const returnInput = form.querySelector('[name="return_rate"]');
+
+            if (preset.value === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+                const selectedOption = preset.options[preset.selectedIndex];
+                const vol = selectedOption.getAttribute('data-vol');
+                const ret = selectedOption.getAttribute('data-ret');
+                volInput.value = vol;
+                returnInput.value = ret;
+            }
+            calculateBoth(true);
+        }
+
+        function getSimulationData(scenario) {
+            const form = document.getElementById(`calculator-form-${scenario}`);
+            const timingName = `contribution_timing_${scenario}`;
+            const feesEnabled = document.getElementById(`fee-toggle-${scenario}`).checked;
+            const preset = document.getElementById(`volatility-preset-${scenario}`);
+            const volInput = document.getElementById(`volatility-${scenario}`);
+
+            let volatility = 16;
+            if (preset.value === 'custom') {
+                volatility = parseFloat(volInput.value) || 16;
+            } else {
+                const selectedOption = preset.options[preset.selectedIndex];
+                volatility = parseFloat(selectedOption.getAttribute('data-vol')) || 16;
+            }
+
+            return {
+                starting_amount: parseFloat(form.querySelector('[name="starting_amount"]').value) || 0,
+                contribution_years: parseInt(form.querySelector('[name="contribution_years"]').value) || 0,
+                growth_years: parseInt(form.querySelector('[name="growth_years"]').value) || 0,
+                return_rate: parseFloat(form.querySelector('[name="return_rate"]').value) || 6,
+                contribution: parseFloat(form.querySelector('[name="contribution"]').value) || 0,
+                contribution_frequency: form.querySelector('[name="contribution_frequency"]').value,
+                contribution_timing: document.querySelector(`input[name="${timingName}"]:checked`).value,
+                fund_fee: feesEnabled ? (parseFloat(form.querySelector('[name="fund_fee"]').value) || 0) : 0,
+                platform_fee: feesEnabled ? (parseFloat(form.querySelector('[name="platform_fee"]').value) || 0) : 0,
+                delay_years: parseInt(form.querySelector('[name="delay_years"]').value) || 0,
+                volatility: volatility,
+                num_simulations: 10000
+            };
+        }
+
+        async function runSimulation(scenario) {
+            const simData = getSimulationData(scenario);
+
+            const response = await fetch('/simulate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(simData)
+            });
+
+            return await response.json();
         }
 
         function copyScenario(from, to) {
@@ -1952,6 +2231,18 @@
                     document.getElementById('results-card').style.display = 'block';
                     document.getElementById('chart-card').style.display = 'block';
                     document.getElementById('schedules-card').style.display = 'block';
+
+                    // Check if either scenario has simulation enabled
+                    const simA = document.getElementById('simulation-toggle-a').checked;
+                    const simB = document.getElementById('simulation-toggle-b').checked;
+
+                    if (simA || simB) {
+                        document.getElementById('simulation-card').style.display = 'block';
+                        await runMonteCarloSimulations(simA, simB);
+                    } else {
+                        document.getElementById('simulation-card').style.display = 'none';
+                    }
+
                     if (!skipScroll) {
                         document.getElementById('results-card').scrollIntoView({ behavior: 'smooth' });
                     }
@@ -1961,6 +2252,201 @@
             } catch (error) {
                 alert('Error: ' + error.message);
             }
+        }
+
+        async function runMonteCarloSimulations(simA, simB) {
+            const statsContainer = document.getElementById('simulation-stats');
+            statsContainer.innerHTML = '<div class="simulation-stat"><div class="simulation-stat-value">Running simulations...</div></div>';
+
+            const promises = [];
+            if (simA) promises.push(runSimulation('a'));
+            else promises.push(Promise.resolve(null));
+            if (simB) promises.push(runSimulation('b'));
+            else promises.push(Promise.resolve(null));
+
+            const [resultA, resultB] = await Promise.all(promises);
+
+            // Draw the chart
+            drawMonteCarloChart(resultA, resultB);
+
+            // Update stats
+            updateSimulationStats(resultA, resultB);
+        }
+
+        function drawMonteCarloChart(resultA, resultB) {
+            const canvas = document.getElementById('monte-carlo-chart');
+            const ctx = canvas.getContext('2d');
+            const yAxis = document.getElementById('y-axis-monte-carlo');
+
+            // Determine dimensions
+            const maxYearsA = resultA ? resultA.years.length : 0;
+            const maxYearsB = resultB ? resultB.years.length : 0;
+            const maxYears = Math.max(maxYearsA, maxYearsB);
+
+            const width = Math.max(800, maxYears * 40);
+            const height = 300;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Find max value for scaling
+            let maxValue = 0;
+            if (resultA) maxValue = Math.max(maxValue, ...resultA.percentiles.p90);
+            if (resultB) maxValue = Math.max(maxValue, ...resultB.percentiles.p90);
+
+            // Add padding
+            maxValue = maxValue * 1.1;
+
+            const padding = { left: 10, right: 20, top: 20, bottom: 30 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            // Calculate nice ticks
+            const ticks = calculateNiceTicks(maxValue, 5);
+            maxValue = ticks[ticks.length - 1];
+
+            // Draw Y-axis
+            yAxis.innerHTML = '';
+            for (let i = ticks.length - 1; i >= 0; i--) {
+                const label = document.createElement('div');
+                label.className = 'y-axis-label';
+                label.textContent = formatCurrency(ticks[i]);
+                yAxis.appendChild(label);
+            }
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            ticks.forEach(tick => {
+                const y = padding.top + chartHeight - (tick / maxValue) * chartHeight;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(width - padding.right, y);
+                ctx.stroke();
+            });
+
+            const yearWidth = chartWidth / maxYears;
+
+            // Draw scenario A bands
+            if (resultA && resultA.success) {
+                drawPercentileBands(ctx, resultA, padding, chartWidth, chartHeight, maxValue, yearWidth, '#00d9ff');
+            }
+
+            // Draw scenario B bands
+            if (resultB && resultB.success) {
+                drawPercentileBands(ctx, resultB, padding, chartWidth, chartHeight, maxValue, yearWidth, '#ffa500');
+            }
+
+            // Draw X-axis labels
+            ctx.fillStyle = '#888';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            for (let year = 1; year <= maxYears; year++) {
+                const x = padding.left + (year - 0.5) * yearWidth;
+                ctx.fillText('Y' + year, x, height - 5);
+            }
+        }
+
+        function drawPercentileBands(ctx, result, padding, chartWidth, chartHeight, maxValue, yearWidth, color) {
+            const years = result.years;
+            const p = result.percentiles;
+
+            // Parse color for rgba
+            const isBlue = color === '#00d9ff';
+            const rgbaOuter = isBlue ? 'rgba(0, 217, 255, 0.15)' : 'rgba(255, 165, 0, 0.15)';
+            const rgbaInner = isBlue ? 'rgba(0, 217, 255, 0.3)' : 'rgba(255, 165, 0, 0.3)';
+
+            // Draw 10-90 percentile band
+            ctx.fillStyle = rgbaOuter;
+            ctx.beginPath();
+            for (let i = 0; i < years.length; i++) {
+                const x = padding.left + (years[i] - 0.5) * yearWidth;
+                const y = padding.top + chartHeight - (p.p90[i] / maxValue) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            for (let i = years.length - 1; i >= 0; i--) {
+                const x = padding.left + (years[i] - 0.5) * yearWidth;
+                const y = padding.top + chartHeight - (p.p10[i] / maxValue) * chartHeight;
+                ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw 25-75 percentile band
+            ctx.fillStyle = rgbaInner;
+            ctx.beginPath();
+            for (let i = 0; i < years.length; i++) {
+                const x = padding.left + (years[i] - 0.5) * yearWidth;
+                const y = padding.top + chartHeight - (p.p75[i] / maxValue) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            for (let i = years.length - 1; i >= 0; i--) {
+                const x = padding.left + (years[i] - 0.5) * yearWidth;
+                const y = padding.top + chartHeight - (p.p25[i] / maxValue) * chartHeight;
+                ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw median line
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < years.length; i++) {
+                const x = padding.left + (years[i] - 0.5) * yearWidth;
+                const y = padding.top + chartHeight - (p.p50[i] / maxValue) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        function updateSimulationStats(resultA, resultB) {
+            const container = document.getElementById('simulation-stats');
+            let html = '';
+
+            if (resultA && resultA.success) {
+                html += `
+                    <div class="simulation-stat">
+                        <div class="simulation-stat-label">Median Final (A)</div>
+                        <div class="simulation-stat-value scenario-a">${formatCurrency(resultA.stats.median_final)}</div>
+                    </div>
+                    <div class="simulation-stat">
+                        <div class="simulation-stat-label">10th-90th Range (A)</div>
+                        <div class="simulation-stat-value scenario-a" style="font-size: 0.9rem;">${formatCurrency(resultA.stats.p10_final)} - ${formatCurrency(resultA.stats.p90_final)}</div>
+                    </div>
+                    <div class="simulation-stat">
+                        <div class="simulation-stat-label">Prob. of Doubling (A)</div>
+                        <div class="simulation-stat-value scenario-a">${resultA.stats.prob_double}%</div>
+                        <div class="simulation-stat-subtext">Invested: ${formatCurrency(resultA.stats.total_invested)}</div>
+                    </div>
+                `;
+            }
+
+            if (resultB && resultB.success) {
+                html += `
+                    <div class="simulation-stat">
+                        <div class="simulation-stat-label">Median Final (B)</div>
+                        <div class="simulation-stat-value scenario-b">${formatCurrency(resultB.stats.median_final)}</div>
+                    </div>
+                    <div class="simulation-stat">
+                        <div class="simulation-stat-label">10th-90th Range (B)</div>
+                        <div class="simulation-stat-value scenario-b" style="font-size: 0.9rem;">${formatCurrency(resultB.stats.p10_final)} - ${formatCurrency(resultB.stats.p90_final)}</div>
+                    </div>
+                    <div class="simulation-stat">
+                        <div class="simulation-stat-label">Prob. of Doubling (B)</div>
+                        <div class="simulation-stat-value scenario-b">${resultB.stats.prob_double}%</div>
+                        <div class="simulation-stat-subtext">Invested: ${formatCurrency(resultB.stats.total_invested)}</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         // Calculate on page load
