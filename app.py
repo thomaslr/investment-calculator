@@ -276,7 +276,7 @@ def simulate():
         fund_fee = float(data.get("fund_fee", 0)) / 100
         platform_fee = float(data.get("platform_fee", 0)) / 100
         delay_years = int(data.get("delay_years", 0))
-        num_simulations = int(data.get("num_simulations", 500))
+        num_simulations = int(data.get("num_simulations", 100))
 
         total_fee_rate = fund_fee + platform_fee
         total_years = delay_years + contribution_years + growth_years
