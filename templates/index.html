@@ -1,3 +1,4 @@
+<!-- (stray debug CSS removed) -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,13 +19,14 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
             color: #fff;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         /* Compare Toggle */
@@ -60,15 +62,29 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 0px;
         }
 
         .scenarios-wrapper.compare-mode {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 550px));
+            gap: 20px;
+            justify-content: center;
         }
 
         .scenario-card {
             position: relative;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* When NOT in compare mode, scenario card is full width */
+        .scenarios-wrapper:not(.compare-mode) .scenario-card {
+            max-width: 100%;
+        }
+
+        /* When in compare mode, cards will size based on grid columns */
+        .scenarios-wrapper.compare-mode .scenario-card {
+            max-width: 100%;
         }
 
         .scenario-header {
@@ -127,6 +143,8 @@
             padding: 30px;
             margin-bottom: 30px;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .comparison-grid {
@@ -138,6 +156,67 @@
 
         .comparison-grid.single-scenario {
             grid-template-columns: 1fr;
+        }
+
+        /* Calculate Button Container */
+        .calculate-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0 0 30px 0;
+            margin: 0;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .calculate-btn:hover {
+            background: linear-gradient(135deg, #00e5ff 0%, #00b3e6 100%);
+            box-shadow: 0 6px 20px rgba(0, 217, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 217, 255, 0.3);
+        }
+
+        /* Results Section: always stacked */
+        .results-section {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 30px !important;
+            width: 100% !important;
+            align-items: stretch !important;
+            clear: both !important;
+            float: none !important;
+        }
+
+        .results-section>.comparison-card,
+        .results-section>.results-card,
+        #results-card,
+        #chart-card,
+        #simulation-card,
+        #schedules-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            display: block !important;
+            float: none !important;
+            flex: none !important;
         }
 
         .comparison-column {
@@ -285,8 +364,8 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 30px 30px 15px 30px;
+            margin-bottom: 0px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -335,12 +414,13 @@
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 6px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
+            max-width: 320px;
         }
 
         .form-group.full-width {
@@ -357,13 +437,14 @@
 
         input,
         select {
-            padding: 15px;
+            padding: 10px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            max-width: 180px;
         }
 
         input:focus,
@@ -389,6 +470,7 @@
 
         .input-group input {
             flex: 1;
+            max-width: 120px;
         }
 
         .input-group select {
@@ -521,31 +603,23 @@
             margin-top: 4px;
         }
 
-        .calculate-btn {
-            width: 100%;
-            padding: 18px;
-            margin-top: 20px;
-            background: linear-gradient(90deg, #00d9ff, #00ff88);
-            border: none;
-            border-radius: 10px;
-            color: #1a1a2e;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
-        }
-
         .results-card {
             display: none;
         }
 
         .results-card.visible {
-            display: block;
+            display: block !important;
+        }
+
+        /* Override for cards inside results-section */
+        .results-section>.results-card,
+        .results-section>.comparison-card {
+            display: block !important;
+        }
+
+        .results-section>.results-card:not(.visible),
+        .results-section>.comparison-card:not(.visible) {
+            display: none !important;
         }
 
         .results-summary {
@@ -1238,61 +1312,66 @@
                         style="display: none;">Copy to B →</button>
                 </div>
                 <form id="calculator-form-a" class="scenario-form" data-scenario="a">
-                    <div class="phase-section phase1">
-                        <div class="phase-title">
-                            <span class="badge">Phase 1</span>
-                            Accumulation Period
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Start Age</label>
+                            <input type="number" name="start_age" value="25" min="0" max="120">
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Delay Start (Years)</label>
-                                <input type="number" name="delay_years" value="0" min="0" max="50">
-                            </div>
-                            <div class="form-group">
-                                <label>Starting Amount ($)</label>
-                                <input type="number" name="starting_amount" value="20000" min="0" step="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Contribution Years</label>
-                                <input type="number" name="contribution_years" value="10" min="0" max="50">
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Contribution ($)</label>
-                                <div class="input-group">
-                                    <input type="number" name="contribution" value="1000" min="0" step="50">
-                                    <select name="contribution_frequency">
-                                        <option value="monthly">Monthly</option>
-                                        <option value="yearly">Yearly</option>
-                                    </select>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label>End Age</label>
+                            <input type="number" name="end_age" value="65" min="0" max="120">
                         </div>
-                        <div class="form-group" style="margin-top: 15px;">
-                            <label>Contribute at the</label>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="contribution_timing_a" value="beginning">
-                                    <span>Beginning</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="contribution_timing_a" value="end" checked>
-                                    <span>End</span>
-                                </label>
-                            </div>
+                        <div class="form-group">
+                            <label>Starting Amount ($)</label>
+                            <input type="number" name="starting_amount" value="20000" min="0" step="100">
                         </div>
                     </div>
-                    <div class="phase-section phase2">
-                        <div class="phase-title">
-                            <span class="badge">Phase 2</span>
-                            Growth Only Period
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Additional Growth Years</label>
-                                <input type="number" name="growth_years" value="10" min="0" max="50">
-                            </div>
-                        </div>
+                    <div id="contribution-phases-a">
+                        <label style="margin-top: 10px;">Contribution Phases</label>
+                        <div class="contribution-phase-list"></div>
+                        <button type="button" class="add-phase-btn" onclick="addContributionPhase('a')">+ Add
+                            Phase</button>
                     </div>
+                    <template id="contribution-phase-template">
+                        <div class="contribution-phase-row">
+                            <input type="number" class="phase-start-age" placeholder="Start Age" min="0" max="120"
+                                required>
+                            <input type="number" class="phase-end-age" placeholder="End Age" min="0" max="120" required>
+                            <input type="number" class="phase-amount" placeholder="Amount ($)" min="0" step="50"
+                                required>
+                            <select class="phase-frequency">
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                            <button type="button" class="remove-phase-btn"
+                                onclick="removeContributionPhase(this)">×</button>
+                        </div>
+                    </template>
+                    <script>
+                        function addContributionPhase(scenario) {
+                            const container = document.querySelector(`#contribution-phases-${scenario} .contribution-phase-list`);
+                            if (container.children.length >= 5) return;
+                            const template = document.getElementById('contribution-phase-template');
+                            const clone = template.content.cloneNode(true);
+                            // Set default values for first phase
+                            if (container.children.length === 0) {
+                                clone.querySelector('.phase-start-age').value = 25;
+                                clone.querySelector('.phase-end-age').value = 65;
+                                clone.querySelector('.phase-amount').value = 1000;
+                            }
+                            container.appendChild(clone);
+                        }
+                        function removeContributionPhase(btn) {
+                            btn.parentElement.remove();
+                        }
+                        // Add one phase by default
+                        document.addEventListener('DOMContentLoaded', function () {
+                            ['a', 'b'].forEach(scenario => {
+                                const container = document.querySelector(`#contribution-phases-${scenario} .contribution-phase-list`);
+                                if (container && container.children.length === 0) addContributionPhase(scenario);
+                            });
+                        });
+                    </script>
                     <div class="form-grid" style="margin-top: 10px;">
                         <div class="form-group">
                             <label>Annual Return Rate (%)</label>
@@ -1382,60 +1461,25 @@
                     <button type="button" class="copy-btn" onclick="copyScenario('b', 'a')">← Copy to A</button>
                 </div>
                 <form id="calculator-form-b" class="scenario-form" data-scenario="b">
-                    <div class="phase-section phase1">
-                        <div class="phase-title">
-                            <span class="badge">Phase 1</span>
-                            Accumulation Period
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Start Age</label>
+                            <input type="number" name="start_age" value="25" min="0" max="120">
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Delay Start (Years)</label>
-                                <input type="number" name="delay_years" value="0" min="0" max="50">
-                            </div>
-                            <div class="form-group">
-                                <label>Starting Amount ($)</label>
-                                <input type="number" name="starting_amount" value="10000" min="0" step="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Contribution Years</label>
-                                <input type="number" name="contribution_years" value="15" min="0" max="50">
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Contribution ($)</label>
-                                <div class="input-group">
-                                    <input type="number" name="contribution" value="500" min="0" step="50">
-                                    <select name="contribution_frequency">
-                                        <option value="monthly">Monthly</option>
-                                        <option value="yearly">Yearly</option>
-                                    </select>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label>End Age</label>
+                            <input type="number" name="end_age" value="65" min="0" max="120">
                         </div>
-                        <div class="form-group" style="margin-top: 15px;">
-                            <label>Contribute at the</label>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="contribution_timing_b" value="beginning">
-                                    <span>Beginning</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="contribution_timing_b" value="end" checked>
-                                    <span>End</span>
-                                </label>
-                            </div>
+                        <div class="form-group">
+                            <label>Starting Amount ($)</label>
+                            <input type="number" name="starting_amount" value="10000" min="0" step="100">
                         </div>
                     </div>
-                    <div class="phase-section phase2">
-                        <div class="phase-title">
-                            <span class="badge">Phase 2</span>
-                            Growth Only Period
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Additional Growth Years</label>
-                                <input type="number" name="growth_years" value="5" min="0" max="50">
-                            </div>
-                        </div>
+                    <div id="contribution-phases-b">
+                        <label style="margin-top: 10px;">Contribution Phases</label>
+                        <div class="contribution-phase-list"></div>
+                        <button type="button" class="add-phase-btn" onclick="addContributionPhase('b')">+ Add
+                            Phase</button>
                     </div>
                     <div class="form-grid" style="margin-top: 10px;">
                         <div class="form-group">
@@ -1498,7 +1542,8 @@
                                 <select id="volatility-preset-b" onchange="updateVolatility('b')">
                                     <option value="conservative" data-vol="8" data-ret="5">Conservative (8% vol, 5%
                                         return)</option>
-                                    <option value="balanced" data-vol="12" data-ret="7">Balanced (12% vol, 7% return)
+                                    <option value="balanced" data-vol="12" data-ret="7">Balanced (12% vol, 7%
+                                        return)
                                     </option>
                                     <option value="sp500" data-vol="16" data-ret="10" selected>S&P 500 (16% vol, 10%
                                         return)</option>
@@ -1517,255 +1562,261 @@
             </div>
         </div>
 
-        <button type="button" class="calculate-btn" id="calculate-btn" onclick="calculateBoth()"
-            style="margin-bottom: 30px;">📊 Calculate</button>
-
-        <!-- Comparison Results -->
-        <div class="comparison-card results-card" id="results-card">
-            <div class="collapsible-header" onclick="toggleCollapse('comparison-content', this)">
-                <h2>⚖️ Scenario Comparison</h2>
-                <span class="collapse-icon">▼</span>
-            </div>
-
-            <div class="collapsible-content" id="comparison-content">
-                <div class="comparison-grid">
-                    <div class="comparison-column scenario-a">
-                        <div class="comparison-header">Scenario A</div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Final Balance</div>
-                            <div class="comparison-stat-value" id="end-balance-a">$0.00</div>
-                            <div class="inflation-label" id="inflation-adjusted-a" style="display: none;"></div>
-                            <div class="difference-indicator" id="diff-balance-a"></div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">After Phase 1</div>
-                            <div class="comparison-stat-value" id="phase1-balance-a">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Total Contributed</div>
-                            <div class="comparison-stat-value" id="total-contributions-a">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Interest Earned</div>
-                            <div class="comparison-stat-value" id="total-interest-a">$0.00</div>
-                            <div class="difference-indicator" id="diff-interest-a"></div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Total Fees Paid</div>
-                            <div class="comparison-stat-value fee-impact-negative" id="total-fees-a">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Lost to Fees</div>
-                            <div class="comparison-stat-value fee-impact-negative" id="fee-impact-a">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Total Years</div>
-                            <div class="comparison-stat-value" id="total-years-a">0</div>
-                        </div>
-                    </div>
-
-                    <div class="comparison-vs">
-                        <div class="vs-badge">VS</div>
-                    </div>
-
-                    <div class="comparison-column scenario-b">
-                        <div class="comparison-header">Scenario B</div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Final Balance</div>
-                            <div class="comparison-stat-value" id="end-balance-b">$0.00</div>
-                            <div class="inflation-label" id="inflation-adjusted-b" style="display: none;"></div>
-                            <div class="difference-indicator" id="diff-balance-b"></div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">After Phase 1</div>
-                            <div class="comparison-stat-value" id="phase1-balance-b">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Total Contributed</div>
-                            <div class="comparison-stat-value" id="total-contributions-b">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Interest Earned</div>
-                            <div class="comparison-stat-value" id="total-interest-b">$0.00</div>
-                            <div class="difference-indicator" id="diff-interest-b"></div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Total Fees Paid</div>
-                            <div class="comparison-stat-value fee-impact-negative" id="total-fees-b">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Lost to Fees</div>
-                            <div class="comparison-stat-value fee-impact-negative" id="fee-impact-b">$0.00</div>
-                        </div>
-                        <div class="comparison-stat">
-                            <div class="comparison-stat-label">Total Years</div>
-                            <div class="comparison-stat-value" id="total-years-b">0</div>
-                        </div>
-                    </div>
-                </div><!-- End comparison-grid -->
-            </div><!-- End comparison-content -->
+        <!-- Calculate Button -->
+        <div class="calculate-container">
+            <button type="button" class="calculate-btn" id="calculate-btn" onclick="calculateBoth()">📊
+                Calculate</button>
         </div>
 
-        <!-- Chart Card -->
-        <div class="comparison-card results-card" id="chart-card" style="display: none;">
-            <div class="collapsible-header" onclick="toggleCollapse('chart-content', this)">
-                <h2>📊 Value Breakdown Chart</h2>
-                <span class="collapse-icon">▼</span>
-            </div>
-            <div class="collapsible-content" id="chart-content">
-                <div class="stacked-chart-container">
-                    <div class="bar-chart-title">Value Breakdown Comparison Over Time</div>
-                    <div class="y-axis" id="y-axis-stacked-combined"></div>
-                    <div class="bar-chart-wrapper">
-                        <div class="bar-chart" id="stacked-chart-combined"></div>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="chart-legend-item">
-                            <div class="chart-legend-color"
-                                style="background: linear-gradient(to right, #00d9ff 50%, #0099cc 50%);"></div>
-                            <span>Initial Investment</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div class="chart-legend-color"
-                                style="background: linear-gradient(to right, #00ff88 50%, #00cc66 50%);"></div>
-                            <span>Contributions</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div class="chart-legend-color"
-                                style="background: linear-gradient(to right, #ff6b6b 50%, #cc5555 50%);"></div>
-                            <span>Interest Earned</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div class="chart-legend-color no-fees"></div>
-                            <span>Without Fees</span>
-                        </div>
-                        <div class="chart-legend-item"
-                            style="margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.3);">
-                            <div
-                                style="width: 16px; height: 16px; border: 2px solid #00d9ff; border-radius: 4px; background: #00d9ff;">
-                            </div>
-                            <span>Scenario A (bright)</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div
-                                style="width: 16px; height: 16px; border: 2px solid #ffa500; border-radius: 4px; background: #0099cc;">
-                            </div>
-                            <span>Scenario B (muted)</span>
-                        </div>
-                    </div>
+        <!-- Results Section: always stacked -->
+        <div class="results-section">
+            <!-- Comparison Results -->
+            <div class="comparison-card results-card" id="results-card">
+                <div class="collapsible-header" onclick="toggleCollapse('comparison-content', this)">
+                    <h2>⚖️ Scenario Comparison</h2>
+                    <span class="collapse-icon">▼</span>
                 </div>
-            </div><!-- End chart-content -->
-        </div>
 
-        <!-- Monte Carlo Simulation Card -->
-        <div class="comparison-card results-card" id="simulation-card" style="display: none;">
-            <div class="collapsible-header" onclick="toggleCollapse('simulation-content', this)">
-                <h2>🎲 Monte Carlo Simulation</h2>
-                <span class="collapse-icon">▼</span>
-            </div>
-            <div class="collapsible-content" id="simulation-content">
-                <div class="simulation-chart-container">
-                    <div class="bar-chart-title">Probability Distribution of Outcomes</div>
-                    <div class="simulation-stats-grid" id="simulation-stats">
-                        <!-- Stats will be populated by JS -->
-                    </div>
-                    <div class="monte-carlo-chart-wrapper">
-                        <div class="y-axis" id="y-axis-monte-carlo"></div>
-                        <div class="monte-carlo-chart-scroll">
-                            <canvas id="monte-carlo-chart"></canvas>
-                            <div class="monte-carlo-tooltip" id="monte-carlo-tooltip"></div>
-                        </div>
-                    </div>
-                    <div class="chart-legend" style="margin-top: 20px;">
-                        <div class="chart-legend-item">
-                            <div
-                                style="width: 16px; height: 16px; background: rgba(0, 217, 255, 0.2); border: 2px solid #00d9ff; border-radius: 4px;">
+                <div class="collapsible-content" id="comparison-content">
+                    <div class="comparison-grid">
+                        <div class="comparison-column scenario-a">
+                            <div class="comparison-header">Scenario A</div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Final Balance</div>
+                                <div class="comparison-stat-value" id="end-balance-a">$0.00</div>
+                                <div class="inflation-label" id="inflation-adjusted-a" style="display: none;"></div>
+                                <div class="difference-indicator" id="diff-balance-a"></div>
                             </div>
-                            <span>10th-90th Percentile (A)</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div
-                                style="width: 16px; height: 16px; background: rgba(0, 217, 255, 0.4); border: 2px solid #00d9ff; border-radius: 4px;">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">After Phase 1</div>
+                                <div class="comparison-stat-value" id="phase1-balance-a">$0.00</div>
                             </div>
-                            <span>25th-75th Percentile (A)</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div style="width: 16px; height: 3px; background: #00d9ff;"></div>
-                            <span>Median (A)</span>
-                        </div>
-                        <div class="chart-legend-item"
-                            style="margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.3);">
-                            <div
-                                style="width: 16px; height: 16px; background: rgba(255, 165, 0, 0.2); border: 2px solid #ffa500; border-radius: 4px;">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Contributed</div>
+                                <div class="comparison-stat-value" id="total-contributions-a">$0.00</div>
                             </div>
-                            <span>10th-90th Percentile (B)</span>
-                        </div>
-                        <div class="chart-legend-item">
-                            <div
-                                style="width: 16px; height: 16px; background: rgba(255, 165, 0, 0.4); border: 2px solid #ffa500; border-radius: 4px;">
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Interest Earned</div>
+                                <div class="comparison-stat-value" id="total-interest-a">$0.00</div>
+                                <div class="difference-indicator" id="diff-interest-a"></div>
                             </div>
-                            <span>25th-75th Percentile (B)</span>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Fees Paid</div>
+                                <div class="comparison-stat-value fee-impact-negative" id="total-fees-a">$0.00</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Lost to Fees</div>
+                                <div class="comparison-stat-value fee-impact-negative" id="fee-impact-a">$0.00</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Years</div>
+                                <div class="comparison-stat-value" id="total-years-a">0</div>
+                            </div>
                         </div>
-                        <div class="chart-legend-item">
-                            <div style="width: 16px; height: 3px; background: #ffa500;"></div>
-                            <span>Median (B)</span>
-                        </div>
-                    </div>
-                </div>
-            </div><!-- End simulation-content -->
-        </div>
 
-        <!-- Schedules Card -->
-        <div class="comparison-card results-card" id="schedules-card" style="display: none;">
-            <div class="collapsible-header" onclick="toggleCollapse('schedules-content', this)">
-                <h2>📅 Accumulation Schedules</h2>
-                <span class="collapse-icon">▼</span>
+                        <div class="comparison-vs">
+                            <div class="vs-badge">VS</div>
+                        </div>
+
+                        <div class="comparison-column scenario-b">
+                            <div class="comparison-header">Scenario B</div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Final Balance</div>
+                                <div class="comparison-stat-value" id="end-balance-b">$0.00</div>
+                                <div class="inflation-label" id="inflation-adjusted-b" style="display: none;"></div>
+                                <div class="difference-indicator" id="diff-balance-b"></div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">After Phase 1</div>
+                                <div class="comparison-stat-value" id="phase1-balance-b">$0.00</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Contributed</div>
+                                <div class="comparison-stat-value" id="total-contributions-b">$0.00</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Interest Earned</div>
+                                <div class="comparison-stat-value" id="total-interest-b">$0.00</div>
+                                <div class="difference-indicator" id="diff-interest-b"></div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Fees Paid</div>
+                                <div class="comparison-stat-value fee-impact-negative" id="total-fees-b">$0.00</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Lost to Fees</div>
+                                <div class="comparison-stat-value fee-impact-negative" id="fee-impact-b">$0.00</div>
+                            </div>
+                            <div class="comparison-stat">
+                                <div class="comparison-stat-label">Total Years</div>
+                                <div class="comparison-stat-value" id="total-years-b">0</div>
+                            </div>
+                        </div>
+                    </div><!-- End comparison-grid -->
+                </div><!-- End comparison-content -->
             </div>
-            <div class="collapsible-content" id="schedules-content">
-                <div class="phase-legend">
-                    <div class="phase-legend-item">
-                        <div class="phase-legend-color p1"></div>
-                        <span>Phase 1: Contributions</span>
-                    </div>
-                    <div class="phase-legend-item">
-                        <div class="phase-legend-color p2"></div>
-                        <span>Phase 2: Growth Only</span>
-                    </div>
+
+            <!-- Chart Card -->
+            <div class="comparison-card results-card" id="chart-card" style="display: none;">
+                <div class="collapsible-header" onclick="toggleCollapse('chart-content', this)">
+                    <h2>📊 Value Breakdown Chart</h2>
+                    <span class="collapse-icon">▼</span>
                 </div>
-                <div class="scenarios-wrapper">
-                    <div class="table-wrapper">
-                        <h3 style="color: #00d9ff; margin-bottom: 10px;">Scenario A</h3>
-                        <table class="schedule-table">
-                            <thead>
-                                <tr>
-                                    <th>Year</th>
-                                    <th>Deposit</th>
-                                    <th>Interest</th>
-                                    <th>Fees</th>
-                                    <th>Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="schedule-body-a"></tbody>
-                        </table>
+                <div class="collapsible-content" id="chart-content">
+                    <div class="stacked-chart-container">
+                        <div class="bar-chart-title">Value Breakdown Comparison Over Time</div>
+                        <div class="y-axis" id="y-axis-stacked-combined"></div>
+                        <div class="bar-chart-wrapper">
+                            <div class="bar-chart" id="stacked-chart-combined"></div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="chart-legend-item">
+                                <div class="chart-legend-color"
+                                    style="background: linear-gradient(to right, #00d9ff 50%, #0099cc 50%);"></div>
+                                <span>Initial Investment</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div class="chart-legend-color"
+                                    style="background: linear-gradient(to right, #00ff88 50%, #00cc66 50%);"></div>
+                                <span>Contributions</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div class="chart-legend-color"
+                                    style="background: linear-gradient(to right, #ff6b6b 50%, #cc5555 50%);"></div>
+                                <span>Interest Earned</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div class="chart-legend-color no-fees"></div>
+                                <span>Without Fees</span>
+                            </div>
+                            <div class="chart-legend-item"
+                                style="margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.3);">
+                                <div
+                                    style="width: 16px; height: 16px; border: 2px solid #00d9ff; border-radius: 4px; background: #00d9ff;">
+                                </div>
+                                <span>Scenario A (bright)</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div
+                                    style="width: 16px; height: 16px; border: 2px solid #ffa500; border-radius: 4px; background: #0099cc;">
+                                </div>
+                                <span>Scenario B (muted)</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="table-wrapper" id="schedule-b-container">
-                        <h3 style="color: #ffa500; margin-bottom: 10px;">Scenario B</h3>
-                        <table class="schedule-table">
-                            <thead>
-                                <tr>
-                                    <th>Year</th>
-                                    <th>Deposit</th>
-                                    <th>Interest</th>
-                                    <th>Fees</th>
-                                    <th>Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="schedule-body-b"></tbody>
-                        </table>
-                    </div>
+                </div><!-- End chart-content -->
+            </div>
+
+            <!-- Monte Carlo Simulation Card -->
+            <div class="comparison-card results-card" id="simulation-card" style="display: none;">
+                <div class="collapsible-header" onclick="toggleCollapse('simulation-content', this)">
+                    <h2>🎲 Monte Carlo Simulation</h2>
+                    <span class="collapse-icon">▼</span>
                 </div>
-            </div><!-- End schedules-content -->
-        </div>
+                <div class="collapsible-content" id="simulation-content">
+                    <div class="simulation-chart-container">
+                        <div class="bar-chart-title">Probability Distribution of Outcomes</div>
+                        <div class="simulation-stats-grid" id="simulation-stats">
+                            <!-- Stats will be populated by JS -->
+                        </div>
+                        <div class="monte-carlo-chart-wrapper">
+                            <div class="y-axis" id="y-axis-monte-carlo"></div>
+                            <div class="monte-carlo-chart-scroll">
+                                <canvas id="monte-carlo-chart"></canvas>
+                                <div class="monte-carlo-tooltip" id="monte-carlo-tooltip"></div>
+                            </div>
+                        </div>
+                        <div class="chart-legend" style="margin-top: 20px;">
+                            <div class="chart-legend-item">
+                                <div
+                                    style="width: 16px; height: 16px; background: rgba(0, 217, 255, 0.2); border: 2px solid #00d9ff; border-radius: 4px;">
+                                </div>
+                                <span>10th-90th Percentile (A)</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div
+                                    style="width: 16px; height: 16px; background: rgba(0, 217, 255, 0.4); border: 2px solid #00d9ff; border-radius: 4px;">
+                                </div>
+                                <span>25th-75th Percentile (A)</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div style="width: 16px; height: 3px; background: #00d9ff;"></div>
+                                <span>Median (A)</span>
+                            </div>
+                            <div class="chart-legend-item"
+                                style="margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.3);">
+                                <div
+                                    style="width: 16px; height: 16px; background: rgba(255, 165, 0, 0.2); border: 2px solid #ffa500; border-radius: 4px;">
+                                </div>
+                                <span>10th-90th Percentile (B)</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div
+                                    style="width: 16px; height: 16px; background: rgba(255, 165, 0, 0.4); border: 2px solid #ffa500; border-radius: 4px;">
+                                </div>
+                                <span>25th-75th Percentile (B)</span>
+                            </div>
+                            <div class="chart-legend-item">
+                                <div style="width: 16px; height: 3px; background: #ffa500;"></div>
+                                <span>Median (B)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- End simulation-content -->
+            </div>
+
+            <!-- Schedules Card -->
+            <div class="comparison-card results-card" id="schedules-card" style="display: none;">
+                <div class="collapsible-header" onclick="toggleCollapse('schedules-content', this)">
+                    <h2>📅 Accumulation Schedules</h2>
+                    <span class="collapse-icon">▼</span>
+                </div>
+                <div class="collapsible-content" id="schedules-content">
+                    <div class="phase-legend">
+                        <div class="phase-legend-item">
+                            <div class="phase-legend-color p1"></div>
+                            <span>Phase 1: Contributions</span>
+                        </div>
+                        <div class="phase-legend-item">
+                            <div class="phase-legend-color p2"></div>
+                            <span>Phase 2: Growth Only</span>
+                        </div>
+                    </div>
+                    <div class="scenarios-wrapper">
+                        <div class="table-wrapper">
+                            <h3 style="color: #00d9ff; margin-bottom: 10px;">Scenario A</h3>
+                            <table class="schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Deposit</th>
+                                        <th>Interest</th>
+                                        <th>Fees</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-body-a"></tbody>
+                            </table>
+                        </div>
+                        <div class="table-wrapper" id="schedule-b-container">
+                            <h3 style="color: #ffa500; margin-bottom: 10px;">Scenario B</h3>
+                            <table class="schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Deposit</th>
+                                        <th>Interest</th>
+                                        <th>Fees</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-body-b"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- End schedules-content -->
+            </div>
+        </div><!-- End results-section -->
     </div>
 
     <script>
@@ -1782,18 +1833,15 @@
             const scenarioBCard = document.getElementById('scenario-b-card');
             const copyToBBtn = document.getElementById('copy-to-b-btn');
             const wrapper = document.querySelector('.scenarios-wrapper');
-            const calcBtn = document.getElementById('calculate-btn');
 
             if (this.checked) {
                 scenarioBCard.style.display = 'block';
                 copyToBBtn.style.display = 'block';
                 wrapper.classList.add('compare-mode');
-                calcBtn.innerHTML = '⚖️ Compare Scenarios';
             } else {
                 scenarioBCard.style.display = 'none';
                 copyToBBtn.style.display = 'none';
                 wrapper.classList.remove('compare-mode');
-                calcBtn.innerHTML = '📊 Calculate';
             }
 
             if (document.getElementById('results-card').classList.contains('visible')) {
@@ -1892,19 +1940,26 @@
 
         function getFormData(scenario) {
             const form = document.getElementById(`calculator-form-${scenario}`);
-            const timingName = `contribution_timing_${scenario}`;
             const feesEnabled = document.getElementById(`fee-toggle-${scenario}`).checked;
+            // Get start/end age
+            const start_age = parseInt(form.querySelector('[name="start_age"]').value) || 25;
+            const end_age = parseInt(form.querySelector('[name="end_age"]').value) || 65;
+            // Get contribution phases
+            const phaseRows = document.querySelectorAll(`#contribution-phases-${scenario} .contribution-phase-row`);
+            const contribution_phases = Array.from(phaseRows).map(row => ({
+                start_age: parseInt(row.querySelector('.phase-start-age').value),
+                end_age: parseInt(row.querySelector('.phase-end-age').value),
+                amount: parseFloat(row.querySelector('.phase-amount').value),
+                frequency: row.querySelector('.phase-frequency').value
+            }));
             return {
                 starting_amount: parseFloat(form.querySelector('[name="starting_amount"]').value) || 0,
-                contribution_years: parseInt(form.querySelector('[name="contribution_years"]').value) || 0,
-                growth_years: parseInt(form.querySelector('[name="growth_years"]').value) || 0,
+                start_age,
+                end_age,
+                contribution_phases,
                 return_rate: parseFloat(form.querySelector('[name="return_rate"]').value) || 6,
-                contribution: parseFloat(form.querySelector('[name="contribution"]').value) || 0,
-                contribution_frequency: form.querySelector('[name="contribution_frequency"]').value,
-                contribution_timing: document.querySelector(`input[name="${timingName}"]:checked`).value,
                 fund_fee: feesEnabled ? (parseFloat(form.querySelector('[name="fund_fee"]').value) || 0) : 0,
-                platform_fee: feesEnabled ? (parseFloat(form.querySelector('[name="platform_fee"]').value) || 0) : 0,
-                delay_years: parseInt(form.querySelector('[name="delay_years"]').value) || 0
+                platform_fee: feesEnabled ? (parseFloat(form.querySelector('[name="platform_fee"]').value) || 0) : 0
             };
         }
 
@@ -1930,7 +1985,6 @@
 
         function getSimulationData(scenario) {
             const form = document.getElementById(`calculator-form-${scenario}`);
-            const timingName = `contribution_timing_${scenario}`;
             const feesEnabled = document.getElementById(`fee-toggle-${scenario}`).checked;
             const preset = document.getElementById(`volatility-preset-${scenario}`);
             const volInput = document.getElementById(`volatility-${scenario}`);
@@ -1943,17 +1997,25 @@
                 volatility = parseFloat(selectedOption.getAttribute('data-vol')) || 16;
             }
 
+            // Get start/end age
+            const start_age = parseInt(form.querySelector('[name="start_age"]').value) || 25;
+            const end_age = parseInt(form.querySelector('[name="end_age"]').value) || 65;
+            // Get contribution phases
+            const phaseRows = document.querySelectorAll(`#contribution-phases-${scenario} .contribution-phase-row`);
+            const contribution_phases = Array.from(phaseRows).map(row => ({
+                start_age: parseInt(row.querySelector('.phase-start-age').value),
+                end_age: parseInt(row.querySelector('.phase-end-age').value),
+                amount: parseFloat(row.querySelector('.phase-amount').value),
+                frequency: row.querySelector('.phase-frequency').value
+            }));
             return {
                 starting_amount: parseFloat(form.querySelector('[name="starting_amount"]').value) || 0,
-                contribution_years: parseInt(form.querySelector('[name="contribution_years"]').value) || 0,
-                growth_years: parseInt(form.querySelector('[name="growth_years"]').value) || 0,
+                start_age,
+                end_age,
+                contribution_phases,
                 return_rate: parseFloat(form.querySelector('[name="return_rate"]').value) || 6,
-                contribution: parseFloat(form.querySelector('[name="contribution"]').value) || 0,
-                contribution_frequency: form.querySelector('[name="contribution_frequency"]').value,
-                contribution_timing: document.querySelector(`input[name="${timingName}"]:checked`).value,
                 fund_fee: feesEnabled ? (parseFloat(form.querySelector('[name="fund_fee"]').value) || 0) : 0,
                 platform_fee: feesEnabled ? (parseFloat(form.querySelector('[name="platform_fee"]').value) || 0) : 0,
-                delay_years: parseInt(form.querySelector('[name="delay_years"]').value) || 0,
                 volatility: volatility,
                 num_simulations: 10000
             };
@@ -1975,13 +2037,25 @@
             const fromForm = document.getElementById(`calculator-form-${from}`);
             const toForm = document.getElementById(`calculator-form-${to}`);
 
-            const fields = ['starting_amount', 'contribution_years', 'growth_years', 'return_rate', 'contribution', 'contribution_frequency', 'fund_fee', 'platform_fee', 'delay_years'];
-            fields.forEach(field => {
+            // Copy start/end age and starting amount
+            ['start_age', 'end_age', 'starting_amount', 'return_rate', 'fund_fee', 'platform_fee'].forEach(field => {
                 toForm.querySelector(`[name="${field}"]`).value = fromForm.querySelector(`[name="${field}"]`).value;
             });
 
-            const fromTiming = document.querySelector(`input[name="contribution_timing_${from}"]:checked`).value;
-            document.querySelector(`input[name="contribution_timing_${to}"][value="${fromTiming}"]`).checked = true;
+            // Copy contribution phases
+            const fromPhases = fromForm.querySelectorAll('.contribution-phase-row');
+            const toPhaseList = toForm.querySelector('.contribution-phase-list');
+            // Remove all existing phases in target
+            toPhaseList.innerHTML = '';
+            fromPhases.forEach(phaseRow => {
+                const template = document.getElementById('contribution-phase-template');
+                const clone = template.content.cloneNode(true);
+                clone.querySelector('.phase-start-age').value = phaseRow.querySelector('.phase-start-age').value;
+                clone.querySelector('.phase-end-age').value = phaseRow.querySelector('.phase-end-age').value;
+                clone.querySelector('.phase-amount').value = phaseRow.querySelector('.phase-amount').value;
+                clone.querySelector('.phase-frequency').value = phaseRow.querySelector('.phase-frequency').value;
+                toPhaseList.appendChild(clone);
+            });
         }
 
         async function calculateScenario(scenario) {
@@ -2092,12 +2166,15 @@
             const maxValueA = Math.max(...scheduleA.map(r => r.balance_without_fees));
             const maxValueB = scheduleB.length > 0 ? Math.max(...scheduleB.map(r => r.balance_without_fees)) : 0;
             const dataMaxValue = Math.max(maxValueA, maxValueB);
-            const maxYears = Math.max(scheduleA.length, scheduleB.length || 0);
             const chartHeight = 260;
 
-            // Determine which years to show based on total years (hybrid approach)
-            const yearsToShow = getYearsToShow(maxYears);
-            const numBarsToShow = yearsToShow.length;
+            // Get min and max ages from scheduleA (primary scenario)
+            const minAge = scheduleA.length > 0 ? scheduleA[0].year : 25;
+            const maxAge = scheduleA.length > 0 ? scheduleA[scheduleA.length - 1].year : 65;
+
+            // Determine which ages to show as x-axis (hybrid approach)
+            const agesToShow = getAgesToShow(minAge, maxAge);
+            const numBarsToShow = agesToShow.length;
 
             // Set chart to full width (bars will distribute evenly)
             barChart.style.width = '100%';
@@ -2144,8 +2221,8 @@
                 }
             }
 
-            // Create grouped bars for sampled years
-            yearsToShow.forEach((year, index) => {
+            // Create grouped bars for sampled ages
+            agesToShow.forEach((age, index) => {
                 const barGroup = document.createElement('div');
                 barGroup.className = 'bar-group';
                 barGroup.style.flexDirection = 'row';
@@ -2154,8 +2231,8 @@
                 barGroup.style.position = 'relative';
                 barGroup.style.zIndex = '2';
 
-                const rowA = scheduleA.find(r => r.year === year);
-                const rowB = scheduleB.find(r => r.year === year);
+                const rowA = scheduleA.find(r => r.year === age);
+                const rowB = scheduleB.find(r => r.year === age);
 
                 // Scenario A stacked bar
                 if (rowA) {
@@ -2169,7 +2246,7 @@
                     barGroup.appendChild(stackB);
                 }
 
-                // Year label
+                // Age label
                 const labelWrapper = document.createElement('div');
                 labelWrapper.style.position = 'absolute';
                 labelWrapper.style.bottom = '-25px';
@@ -2177,7 +2254,7 @@
                 labelWrapper.style.transform = 'translateX(-50%)';
                 const label = document.createElement('div');
                 label.className = 'bar-label';
-                label.textContent = 'Y' + year;
+                label.textContent = 'Age ' + age;
                 labelWrapper.appendChild(label);
                 barGroup.appendChild(labelWrapper);
 
@@ -2185,22 +2262,23 @@
             });
         }
 
-        function getYearsToShow(maxYears) {
+        function getAgesToShow(minAge, maxAge) {
             // Hybrid approach: narrow bars first, then sample
             // Target roughly 20-30 bars max for readability
             let step = 1;
-            if (maxYears > 50) step = 5;
-            else if (maxYears > 30) step = 2;
+            const totalYears = maxAge - minAge + 1;
+            if (totalYears > 50) step = 5;
+            else if (totalYears > 30) step = 2;
 
-            const years = [];
-            for (let y = step; y <= maxYears; y += step) {
-                years.push(y);
+            const ages = [];
+            for (let a = minAge; a <= maxAge; a += step) {
+                ages.push(a);
             }
-            // Always include the final year if not already included
-            if (years.length === 0 || years[years.length - 1] !== maxYears) {
-                years.push(maxYears);
+            // Always include the final age if not already included
+            if (ages.length === 0 || ages[ages.length - 1] !== maxAge) {
+                ages.push(maxAge);
             }
-            return years;
+            return ages;
         }
 
         function createStackedBar(row, startingAmount, maxValue, chartHeight, borderColor, scenarioLabel) {
@@ -2841,8 +2919,8 @@
             container.innerHTML = html;
         }
 
-        // Calculate on page load
-        calculateBoth();
+        // Calculate on page load, but skip scroll
+        calculateBoth(true);
     </script>
 </body>
 

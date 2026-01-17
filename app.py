@@ -38,15 +38,12 @@ class InvestmentResult:
 
 def calculate_investment(
     starting_amount: float,
-    contribution_years: int,  # Phase 1: years with contributions
-    growth_years: int,  # Phase 2: years with growth only (no contributions)
+    start_age: int,
+    end_age: int,
+    contribution_phases: list,
     return_rate: float,
-    contribution: float,
-    contribution_frequency: str,  # 'monthly' or 'yearly'
-    contribution_timing: str,  # 'beginning' or 'end'
-    fund_fee: float = 0.0,  # Annual fund fee as percentage
-    platform_fee: float = 0.0,  # Annual platform fee as percentage
-    delay_years: int = 0,  # Phase 0: years of delay before starting
+    fund_fee: float = 0.0,
+    platform_fee: float = 0.0,
 ) -> InvestmentResult:
     """
     Calculate investment growth in three phases:
@@ -61,63 +58,46 @@ def calculate_investment(
     total_fee_rate = (fund_fee + platform_fee) / 100
 
     schedule = []
-
-    # Phase 0: Delay years (no investment yet)
-    for year in range(1, delay_years + 1):
-        schedule.append(
-            YearlyData(
-                year=year,
-                deposit=0,
-                interest=0,
-                ending_balance=0,
-                phase=0,
-                cumulative_starting=0,
-                cumulative_contributions=0,
-                cumulative_interest=0,
-                fees_paid=0,
-                balance_without_fees=0,
-            )
-        )
-
     balance = starting_amount
-    balance_no_fees = starting_amount  # Track what balance would be without fees
+    balance_no_fees = starting_amount
     total_contributions = 0
     total_interest = 0
     total_fees = 0
-    phase1_end_balance = 0
-
-    # Track cumulative breakdown
     cumulative_starting = starting_amount
     cumulative_contributions = 0
     cumulative_interest = 0
+    phase1_end_balance = 0
 
-    total_years = contribution_years + growth_years
-
-    for year in range(1, total_years + 1):
-        actual_year = year + delay_years  # Offset by delay years
+    years = end_age - start_age
+    for i in range(years):
+        year = start_age + i
         year_interest = 0
         year_interest_no_fees = 0
         year_deposits = 0
         year_fees = 0
 
-        # Determine which phase we're in
-        in_contribution_phase = year <= contribution_years
-        phase = 1 if in_contribution_phase else 2
+        # Find all phases active this year
+        active_phases = [
+            p for p in contribution_phases if p["start_age"] <= year < p["end_age"]
+        ]
 
-        # Monthly calculations for precision
+        # Monthly calculations
         for month in range(12):
-            # Add contribution at beginning of period if applicable (Phase 1 only)
-            if in_contribution_phase and contribution_timing == "beginning":
-                if contribution_frequency == "monthly":
-                    balance += contribution
-                    balance_no_fees += contribution
-                    year_deposits += contribution
-                    cumulative_contributions += contribution
-                elif contribution_frequency == "yearly" and month == 0:
-                    balance += contribution
-                    balance_no_fees += contribution
-                    year_deposits += contribution
-                    cumulative_contributions += contribution
+            # Add contributions for all active phases
+            for phase in active_phases:
+                freq = phase.get("frequency", "monthly")
+                amt = phase.get("amount", 0)
+                # Assume contributions at beginning of month
+                if freq == "monthly":
+                    balance += amt
+                    balance_no_fees += amt
+                    year_deposits += amt
+                    cumulative_contributions += amt
+                elif freq == "yearly" and month == 0:
+                    balance += amt
+                    balance_no_fees += amt
+                    year_deposits += amt
+                    cumulative_contributions += amt
 
             # Calculate monthly interest (monthly compounding)
             monthly_interest = balance * (r / 12)
@@ -134,33 +114,20 @@ def calculate_investment(
             year_fees += monthly_fee
             total_fees += monthly_fee
 
-            # Add contribution at end of period if applicable (Phase 1 only)
-            if in_contribution_phase and contribution_timing == "end":
-                if contribution_frequency == "monthly":
-                    balance += contribution
-                    balance_no_fees += contribution
-                    year_deposits += contribution
-                    cumulative_contributions += contribution
-                elif contribution_frequency == "yearly" and month == 11:
-                    balance += contribution
-                    balance_no_fees += contribution
-                    year_deposits += contribution
-                    cumulative_contributions += contribution
-
         total_contributions += year_deposits
         total_interest += year_interest
 
-        # Record phase 1 end balance
-        if year == contribution_years:
+        # Record phase 1 end balance (at end of last contribution phase)
+        if i == years - 1:
             phase1_end_balance = balance
 
         schedule.append(
             YearlyData(
-                year=actual_year,
+                year=year,
                 deposit=year_deposits,
                 interest=year_interest,
                 ending_balance=balance,
-                phase=phase,
+                phase=1 if active_phases else 2,
                 cumulative_starting=cumulative_starting,
                 cumulative_contributions=cumulative_contributions,
                 cumulative_interest=cumulative_interest,
@@ -168,10 +135,6 @@ def calculate_investment(
                 balance_without_fees=balance_no_fees,
             )
         )
-
-    # Handle case where there are no contribution years
-    if contribution_years == 0:
-        phase1_end_balance = starting_amount
 
     return InvestmentResult(
         end_balance=balance,
@@ -181,8 +144,8 @@ def calculate_investment(
         total_fees=total_fees,
         balance_without_fees=balance_no_fees,
         phase1_end_balance=phase1_end_balance,
-        phase1_years=contribution_years,
-        phase2_years=growth_years,
+        phase1_years=years,
+        phase2_years=0,
         schedule=schedule,
     )
 
@@ -198,27 +161,21 @@ def calculate():
         data = request.json
 
         starting_amount = float(data.get("starting_amount", 0))
-        contribution_years = int(data.get("contribution_years", 10))
-        growth_years = int(data.get("growth_years", 0))
+        start_age = int(data.get("start_age", 25))
+        end_age = int(data.get("end_age", 65))
+        contribution_phases = data.get("contribution_phases", [])
         return_rate = float(data.get("return_rate", 6))
-        contribution = float(data.get("contribution", 0))
-        contribution_frequency = data.get("contribution_frequency", "monthly")
-        contribution_timing = data.get("contribution_timing", "end")
         fund_fee = float(data.get("fund_fee", 0))
         platform_fee = float(data.get("platform_fee", 0))
-        delay_years = int(data.get("delay_years", 0))
 
         result = calculate_investment(
             starting_amount=starting_amount,
-            contribution_years=contribution_years,
-            growth_years=growth_years,
+            start_age=start_age,
+            end_age=end_age,
+            contribution_phases=contribution_phases,
             return_rate=return_rate,
-            contribution=contribution,
-            contribution_frequency=contribution_frequency,
-            contribution_timing=contribution_timing,
             fund_fee=fund_fee,
             platform_fee=platform_fee,
-            delay_years=delay_years,
         )
 
         return jsonify(
