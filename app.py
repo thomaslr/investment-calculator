@@ -223,58 +223,51 @@ def simulate():
         data = request.json
 
         starting_amount = float(data.get("starting_amount", 0))
-        contribution_years = int(data.get("contribution_years", 10))
-        growth_years = int(data.get("growth_years", 0))
+        start_age = int(data.get("start_age", 25))
+        end_age = int(data.get("end_age", 65))
+        contribution_phases = data.get("contribution_phases", [])
         expected_return = float(data.get("return_rate", 6)) / 100
         volatility = float(data.get("volatility", 15)) / 100
-        contribution = float(data.get("contribution", 0))
-        contribution_frequency = data.get("contribution_frequency", "monthly")
-        contribution_timing = data.get("contribution_timing", "end")
         fund_fee = float(data.get("fund_fee", 0)) / 100
         platform_fee = float(data.get("platform_fee", 0)) / 100
-        delay_years = int(data.get("delay_years", 0))
         num_simulations = int(data.get("num_simulations", 100))
 
         total_fee_rate = fund_fee + platform_fee
-        total_years = delay_years + contribution_years + growth_years
-
-        # Convert contribution to monthly
-        monthly_contribution = (
-            contribution if contribution_frequency == "monthly" else contribution / 12
-        )
+        total_years = end_age - start_age
 
         # Run simulations
         all_paths = []
         final_balances = []
 
         for sim in range(num_simulations):
-            balance = 0
+            balance = starting_amount
             path = []
 
-            for year in range(1, total_years + 1):
-                if year <= delay_years:
-                    # Delay phase - no investment
-                    path.append(0)
-                    continue
+            for year_idx in range(total_years):
+                current_age = start_age + year_idx
 
-                # Initialize balance at start of investment period
-                if year == delay_years + 1:
-                    balance = starting_amount
-
-                in_contribution_phase = year <= (delay_years + contribution_years)
+                # Find all active contribution phases for this age
+                active_phases = [
+                    p
+                    for p in contribution_phases
+                    if p["start_age"] <= current_age < p["end_age"]
+                ]
 
                 # Monthly simulation for this year
                 for month in range(12):
-                    # Add contribution at beginning if applicable
-                    if in_contribution_phase and contribution_timing == "beginning":
-                        balance += monthly_contribution
+                    # Add contributions from all active phases
+                    for phase in active_phases:
+                        freq = phase.get("frequency", "monthly")
+                        amt = phase.get("amount", 0)
+                        if freq == "monthly":
+                            balance += amt
+                        elif freq == "yearly" and month == 0:
+                            balance += amt
 
                     # Generate random monthly return using log-normal distribution
-                    # Convert annual parameters to monthly
                     monthly_expected = expected_return / 12
                     monthly_vol = volatility / math.sqrt(12)
 
-                    # Log-normal return
                     monthly_return = (
                         np.random.lognormal(
                             mean=math.log(1 + monthly_expected) - (monthly_vol**2) / 2,
@@ -287,10 +280,6 @@ def simulate():
 
                     # Apply monthly fees
                     balance *= 1 - total_fee_rate / 12
-
-                    # Add contribution at end if applicable
-                    if in_contribution_phase and contribution_timing == "end":
-                        balance += monthly_contribution
 
                 path.append(max(0, balance))
 
@@ -313,15 +302,33 @@ def simulate():
 
         # Calculate summary statistics
         final_array = np.array(final_balances)
-        total_invested = starting_amount + (
-            monthly_contribution * 12 * contribution_years
-        )
+
+        # Calculate total invested from starting amount and contribution phases
+        total_contributions = 0
+        for year_idx in range(total_years):
+            current_age = start_age + year_idx
+            active_phases = [
+                p
+                for p in contribution_phases
+                if p["start_age"] <= current_age < p["end_age"]
+            ]
+            for phase in active_phases:
+                freq = phase.get("frequency", "monthly")
+                amt = phase.get("amount", 0)
+                if freq == "monthly":
+                    total_contributions += amt * 12
+                elif freq == "yearly":
+                    total_contributions += amt
+
+        total_invested = starting_amount + total_contributions
 
         return jsonify(
             {
                 "success": True,
                 "percentiles": percentiles,
                 "years": list(range(1, total_years + 1)),
+                "ages": list(range(start_age, start_age + total_years)),
+                "start_age": start_age,
                 "stats": {
                     "median_final": round(float(np.median(final_array)), 2),
                     "mean_final": round(float(np.mean(final_array)), 2),

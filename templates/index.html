@@ -29,6 +29,20 @@
             padding: 20px;
         }
 
+        .version-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            color: #00d9ff;
+            font-family: monospace;
+            z-index: 9999;
+        }
+
         /* Compare Toggle */
         .compare-toggle-container {
             margin-bottom: 20px;
@@ -1290,6 +1304,7 @@
 </head>
 
 <body>
+    <div class="version-badge">v2.0-ages</div>
     <div class="container">
         <h1>What-If<br>Investment Calculator</h1>
 
@@ -2667,6 +2682,11 @@
             ctx.font = '11px sans-serif';
             ctx.textAlign = 'center';
 
+            // Get start ages from results
+            const startAgeA = resultA && resultA.start_age ? resultA.start_age : 25;
+            const startAgeB = resultB && resultB.start_age ? resultB.start_age : 25;
+            const startAge = Math.min(startAgeA, startAgeB);
+
             // Determine label step based on number of years
             let labelStep = 1;
             if (maxYears > 50) labelStep = 10;
@@ -2675,12 +2695,14 @@
 
             for (let year = labelStep; year <= maxYears; year += labelStep) {
                 const x = padding.left + (year - 0.5) * yearWidth;
-                ctx.fillText('Y' + year, x, height - 5);
+                const age = startAge + year - 1;
+                ctx.fillText(age.toString(), x, height - 5);
             }
             // Always show last year if not already shown
             if (maxYears % labelStep !== 0) {
                 const x = padding.left + (maxYears - 0.5) * yearWidth;
-                ctx.fillText('Y' + maxYears, x, height - 5);
+                const age = startAge + maxYears - 1;
+                ctx.fillText(age.toString(), x, height - 5);
             }
 
             // Store chart data for tooltip
@@ -2732,8 +2754,14 @@
                     return;
                 }
 
+                // Get start ages to calculate current age
+                const startAgeA = data.resultA && data.resultA.start_age ? data.resultA.start_age : 25;
+                const startAgeB = data.resultB && data.resultB.start_age ? data.resultB.start_age : 25;
+                const startAge = Math.min(startAgeA, startAgeB);
+                const currentAge = startAge + yearIndex;
+
                 // Build tooltip content
-                let html = `<div class="monte-carlo-tooltip-title">Year ${year}</div>`;
+                let html = `<div class="monte-carlo-tooltip-title">Age ${currentAge}</div>`;
 
                 if (data.resultA && data.resultA.success && yearIndex < data.resultA.years.length) {
                     const p = data.resultA.percentiles;
