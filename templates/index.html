@@ -1446,14 +1446,10 @@
                             <div class="form-group">
                                 <label>Volatility Preset</label>
                                 <select id="volatility-preset-a" onchange="updateVolatility('a')">
-                                    <option value="conservative" data-vol="8" data-ret="5">Conservative (8% vol, 5%
-                                        return)</option>
-                                    <option value="balanced" data-vol="12" data-ret="7">Balanced (12% vol, 7% return)
-                                    </option>
-                                    <option value="sp500" data-vol="16" data-ret="10" selected>S&P 500 (16% vol, 10%
-                                        return)</option>
-                                    <option value="aggressive" data-vol="22" data-ret="12">Aggressive (22% vol, 12%
-                                        return)</option>
+                                    <option value="conservative" data-vol="8">Conservative (8% vol)</option>
+                                    <option value="balanced" data-vol="12">Balanced (12% vol)</option>
+                                    <option value="sp500" data-vol="16" selected>S&P 500 (16% vol)</option>
+                                    <option value="aggressive" data-vol="22">Aggressive (22% vol)</option>
                                     <option value="custom">Custom</option>
                                 </select>
                             </div>
@@ -1555,15 +1551,10 @@
                             <div class="form-group">
                                 <label>Volatility Preset</label>
                                 <select id="volatility-preset-b" onchange="updateVolatility('b')">
-                                    <option value="conservative" data-vol="8" data-ret="5">Conservative (8% vol, 5%
-                                        return)</option>
-                                    <option value="balanced" data-vol="12" data-ret="7">Balanced (12% vol, 7%
-                                        return)
-                                    </option>
-                                    <option value="sp500" data-vol="16" data-ret="10" selected>S&P 500 (16% vol, 10%
-                                        return)</option>
-                                    <option value="aggressive" data-vol="22" data-ret="12">Aggressive (22% vol, 12%
-                                        return)</option>
+                                    <option value="conservative" data-vol="8">Conservative (8% vol)</option>
+                                    <option value="balanced" data-vol="12">Balanced (12% vol)</option>
+                                    <option value="sp500" data-vol="16" selected>S&P 500 (16% vol)</option>
+                                    <option value="aggressive" data-vol="22">Aggressive (22% vol)</option>
                                     <option value="custom">Custom</option>
                                 </select>
                             </div>
@@ -2677,6 +2668,14 @@
                 drawPercentileBands(ctx, resultB, padding, chartWidth, chartHeight, minValue, maxValue, yearWidth, '#ffa500');
             }
 
+            // Draw cumulative contributions lines
+            if (resultA && resultA.success && resultA.cumulative_contributions) {
+                drawContributionsLine(ctx, resultA.cumulative_contributions, padding, chartWidth, chartHeight, minValue, maxValue, yearWidth, '#00ff88', 'Scenario A');
+            }
+            if (resultB && resultB.success && resultB.cumulative_contributions) {
+                drawContributionsLine(ctx, resultB.cumulative_contributions, padding, chartWidth, chartHeight, minValue, maxValue, yearWidth, '#ffcc00', 'Scenario B');
+            }
+
             // Draw X-axis labels (reduce labels for long periods)
             ctx.fillStyle = '#888';
             ctx.font = '11px sans-serif';
@@ -2765,9 +2764,14 @@
 
                 if (data.resultA && data.resultA.success && yearIndex < data.resultA.years.length) {
                     const p = data.resultA.percentiles;
+                    const contrib = data.resultA.cumulative_contributions ? data.resultA.cumulative_contributions[yearIndex] : null;
                     html += `
                         <div style="margin-top: 8px; border-left: 3px solid #00d9ff; padding-left: 8px;">
                             <div style="color: #00d9ff; font-weight: bold; margin-bottom: 4px;">Scenario A</div>
+                            ${contrib ? `<div class="monte-carlo-tooltip-row">
+                                <span class="monte-carlo-tooltip-label">Total Invested:</span>
+                                <span class="monte-carlo-tooltip-value" style="color: #00ff88;">${formatCurrency(contrib)}</span>
+                            </div>` : ''}
                             <div class="monte-carlo-tooltip-row">
                                 <span class="monte-carlo-tooltip-label">90th %ile:</span>
                                 <span class="monte-carlo-tooltip-value scenario-a">${formatCurrency(p.p90[yearIndex])}</span>
@@ -2794,9 +2798,14 @@
 
                 if (data.resultB && data.resultB.success && yearIndex < data.resultB.years.length) {
                     const p = data.resultB.percentiles;
+                    const contrib = data.resultB.cumulative_contributions ? data.resultB.cumulative_contributions[yearIndex] : null;
                     html += `
                         <div style="margin-top: 8px; border-left: 3px solid #ffa500; padding-left: 8px;">
                             <div style="color: #ffa500; font-weight: bold; margin-bottom: 4px;">Scenario B</div>
+                            ${contrib ? `<div class="monte-carlo-tooltip-row">
+                                <span class="monte-carlo-tooltip-label">Total Invested:</span>
+                                <span class="monte-carlo-tooltip-value" style="color: #ffcc00;">${formatCurrency(contrib)}</span>
+                            </div>` : ''}
                             <div class="monte-carlo-tooltip-row">
                                 <span class="monte-carlo-tooltip-label">90th %ile:</span>
                                 <span class="monte-carlo-tooltip-value scenario-b">${formatCurrency(p.p90[yearIndex])}</span>
@@ -2845,6 +2854,25 @@
             canvas.addEventListener('mouseleave', () => {
                 tooltip.classList.remove('visible');
             });
+        }
+
+        function drawContributionsLine(ctx, contributions, padding, chartWidth, chartHeight, minValue, maxValue, yearWidth, color, label) {
+            const valueRange = maxValue - minValue;
+
+            // Draw dashed line for contributions
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+
+            for (let i = 0; i < contributions.length; i++) {
+                const x = padding.left + (i + 0.5) * yearWidth;
+                const y = padding.top + chartHeight - ((contributions[i] - minValue) / valueRange) * chartHeight;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset to solid line
         }
 
         function drawPercentileBands(ctx, result, padding, chartWidth, chartHeight, minValue, maxValue, yearWidth, color) {

@@ -235,6 +235,29 @@ def simulate():
         total_fee_rate = fund_fee + platform_fee
         total_years = end_age - start_age
 
+        # Calculate cumulative contributions for each year
+        cumulative_contributions = []
+        total_invested = starting_amount
+        cumulative_contributions.append(total_invested)
+
+        for year_idx in range(1, total_years):
+            current_age = start_age + year_idx
+            active_phases = [
+                p
+                for p in contribution_phases
+                if p["start_age"] <= current_age < p["end_age"]
+            ]
+            year_contributions = 0
+            for phase in active_phases:
+                freq = phase.get("frequency", "monthly")
+                amt = phase.get("amount", 0)
+                if freq == "monthly":
+                    year_contributions += amt * 12
+                elif freq == "yearly":
+                    year_contributions += amt
+            total_invested += year_contributions
+            cumulative_contributions.append(total_invested)
+
         # Run simulations
         all_paths = []
         final_balances = []
@@ -326,6 +349,7 @@ def simulate():
             {
                 "success": True,
                 "percentiles": percentiles,
+                "cumulative_contributions": cumulative_contributions,
                 "years": list(range(1, total_years + 1)),
                 "ages": list(range(start_age, start_age + total_years)),
                 "start_age": start_age,
