@@ -1300,13 +1300,184 @@
                 padding: 15px;
             }
         }
+
+        /* Saved Scenarios Styles */
+        .saved-scenarios-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        summary.saved-scenarios-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+        }
+
+        summary.saved-scenarios-header::-webkit-details-marker {
+            display: none;
+        }
+
+        summary.saved-scenarios-header::after {
+            content: '▼';
+            font-size: 1rem;
+            color: #aaa;
+            transition: transform 0.3s ease;
+            margin-right: 10px;
+        }
+
+        details[open]>summary.saved-scenarios-header::after {
+            transform: rotate(180deg);
+        }
+
+        .saved-scenarios-header h2 {
+            font-size: 1.2rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .saved-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
+
+        .saved-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .saved-item:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .saved-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        .saved-date {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+        .saved-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .action-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.2s;
+        }
+
+        .load-a-btn {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            border: 1px solid rgba(0, 217, 255, 0.3);
+        }
+
+        .load-a-btn:hover {
+            background: rgba(0, 217, 255, 0.4);
+        }
+
+        .load-b-btn {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+
+        .load-b-btn:hover {
+            background: rgba(255, 165, 0, 0.4);
+        }
+
+        .delete-btn {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            flex: 0 0 auto;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .save-scenario-btn {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+
+        .save-scenario-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
 
 <body>
-    <div class="version-badge">v2.0-ages</div>
+
     <div class="container">
         <h1>What-If<br>Investment Calculator</h1>
+
+        <!-- Saved Scenarios Panel -->
+        <details class="saved-scenarios-card" id="saved-scenarios-panel">
+            <summary class="saved-scenarios-header">
+                <h2>📁 Saved Scenarios</h2>
+            </summary>
+            <div class="saved-list" id="saved-scenarios-list">
+                <!-- Populated by JS -->
+                <div class="empty-state">No saved scenarios yet. Save one below!</div>
+            </div>
+        </details>
 
         <div class="compare-toggle-container">
             <label class="compare-toggle-label">
@@ -1322,6 +1493,7 @@
                     <div class="scenario-title">
                         <span class="scenario-badge a">A</span>
                         Scenario A
+                        <button type="button" class="save-scenario-btn" onclick="saveScenario('a')">💾 Save</button>
                     </div>
                     <button type="button" class="copy-btn" id="copy-to-b-btn" onclick="copyScenario('a', 'b')"
                         style="display: none;">Copy to B →</button>
@@ -1468,6 +1640,7 @@
                     <div class="scenario-title">
                         <span class="scenario-badge b">B</span>
                         Scenario B
+                        <button type="button" class="save-scenario-btn" onclick="saveScenario('b')">💾 Save</button>
                     </div>
                     <button type="button" class="copy-btn" onclick="copyScenario('b', 'a')">← Copy to A</button>
                 </div>
@@ -1826,6 +1999,159 @@
     </div>
 
     <script>
+        // --- Local Storage Logic ---
+        const STORAGE_KEY = 'investment_scenarios';
+
+        function getSavedScenarios() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : {};
+        }
+
+        function saveScenario(scenarioId) {
+            const data = getSimulationData(scenarioId); // Reuse this to get all fields including simulation headers if we want, but getFormData is cleaner for core data.
+            // Actually getSimulationData is better because it includes volatility settings.
+
+            // However, getSimulationData sets num_simulations hardcoded. Let's use a specialized getter or just extend the data.
+            // Let's use getSimulationData but strip the big num_simulations if we don't want it, or just keep it.
+            // Better: merge form data + detailed settings.
+
+            // Let's create a snapshot object.
+            const formData = getFormData(scenarioId);
+
+            // Add Inflation & Fee toggle states (not just the values)
+            formData.inflation_enabled = document.getElementById(`inflation-toggle-${scenarioId}`).checked;
+            formData.inflation_rate = parseFloat(document.getElementById(`inflation-rate-${scenarioId}`).value) || 2;
+            formData.fees_enabled = document.getElementById(`fee-toggle-${scenarioId}`).checked;
+
+            // Add Simulation settings
+            formData.simulation_enabled = document.getElementById(`simulation-toggle-${scenarioId}`).checked;
+            formData.volatility_preset = document.getElementById(`volatility-preset-${scenarioId}`).value;
+            formData.volatility_custom = document.getElementById(`volatility-${scenarioId}`).value;
+
+            const name = prompt("Enter a name for this scenario:");
+            if (!name) return;
+
+            const saved = getSavedScenarios();
+            saved[name] = {
+                created_at: new Date().toISOString(),
+                data: formData
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            renderSavedScenarios();
+            alert(`Scenario "${name}" saved!`);
+        }
+
+        function deleteScenario(name) {
+            if (!confirm(`Delete scenario "${name}"?`)) return;
+            const saved = getSavedScenarios();
+            delete saved[name];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            renderSavedScenarios();
+        }
+
+        function loadScenario(name, targetScenarioId) {
+            const saved = getSavedScenarios();
+            const record = saved[name];
+            if (!record) return;
+
+            const data = record.data;
+            const form = document.getElementById(`calculator-form-${targetScenarioId}`);
+
+            // Basic Fields
+            if (data.start_age !== undefined) form.querySelector('[name="start_age"]').value = data.start_age;
+            if (data.end_age !== undefined) form.querySelector('[name="end_age"]').value = data.end_age;
+            if (data.starting_amount !== undefined) form.querySelector('[name="starting_amount"]').value = data.starting_amount;
+            if (data.return_rate !== undefined) form.querySelector('[name="return_rate"]').value = data.return_rate;
+            if (data.fund_fee !== undefined) form.querySelector('[name="fund_fee"]').value = data.fund_fee;
+            if (data.platform_fee !== undefined) form.querySelector('[name="platform_fee"]').value = data.platform_fee;
+
+            // Toggles
+            if (data.inflation_enabled !== undefined) {
+                const toggle = document.getElementById(`inflation-toggle-${targetScenarioId}`);
+                toggle.checked = data.inflation_enabled;
+                document.getElementById(`inflation-rate-group-${targetScenarioId}`).style.display = data.inflation_enabled ? 'flex' : 'none';
+                if (data.inflation_rate !== undefined) document.getElementById(`inflation-rate-${targetScenarioId}`).value = data.inflation_rate;
+            }
+
+            if (data.fees_enabled !== undefined) {
+                const toggle = document.getElementById(`fee-toggle-${targetScenarioId}`);
+                toggle.checked = data.fees_enabled;
+                document.getElementById(`fee-inputs-${targetScenarioId}`).style.display = data.fees_enabled ? 'grid' : 'none';
+            }
+
+            if (data.simulation_enabled !== undefined) {
+                const toggle = document.getElementById(`simulation-toggle-${targetScenarioId}`);
+                toggle.checked = data.simulation_enabled;
+                document.getElementById(`simulation-inputs-${targetScenarioId}`).style.display = data.simulation_enabled ? 'block' : 'none';
+
+                if (data.volatility_preset) {
+                    const preset = document.getElementById(`volatility-preset-${targetScenarioId}`);
+                    preset.value = data.volatility_preset;
+                    if (data.volatility_preset === 'custom') {
+                        document.getElementById(`custom-volatility-group-${targetScenarioId}`).style.display = 'block';
+                    } else {
+                        document.getElementById(`custom-volatility-group-${targetScenarioId}`).style.display = 'none';
+                    }
+                }
+                if (data.volatility_custom) document.getElementById(`volatility-${targetScenarioId}`).value = data.volatility_custom;
+            }
+
+            // Contribution Phases
+            const container = document.querySelector(`#contribution-phases-${targetScenarioId} .contribution-phase-list`);
+            container.innerHTML = ''; // Clear existing
+
+            if (data.contribution_phases && data.contribution_phases.length > 0) {
+                const template = document.getElementById('contribution-phase-template');
+                data.contribution_phases.forEach(phase => {
+                    const clone = template.content.cloneNode(true);
+                    clone.querySelector('.phase-start-age').value = phase.start_age;
+                    clone.querySelector('.phase-end-age').value = phase.end_age;
+                    clone.querySelector('.phase-amount').value = phase.amount;
+                    clone.querySelector('.phase-frequency').value = phase.frequency;
+                    container.appendChild(clone);
+                });
+            } else {
+                // Determine if we need to add a default one or leave empty? 
+                // The UI logic usually expects at least one, but the copy logic cleared it.
+                // Let's add a default empty one if list is empty? No, load exactly what was saved.
+            }
+
+            // Trigger Recalculation
+            calculateBoth(true);
+        }
+
+        function renderSavedScenarios() {
+            const list = document.getElementById('saved-scenarios-list');
+            const saved = getSavedScenarios();
+            const names = Object.keys(saved).sort((a, b) => new Date(saved[b].created_at) - new Date(saved[a].created_at));
+
+            if (names.length === 0) {
+                list.innerHTML = '<div class="empty-state">No saved scenarios yet. Save one below!</div>';
+                return;
+            }
+
+            list.innerHTML = names.map(name => {
+                const date = new Date(saved[name].created_at).toLocaleString();
+                return `
+                    <div class="saved-item">
+                        <div class="saved-item-header">
+                            <span class="saved-name">${name}</span>
+                            <button class="delete-btn" onclick="deleteScenario('${name}')" title="Delete">🗑️</button>
+                        </div>
+                        <div class="saved-date">${date}</div>
+                        <div class="saved-actions">
+                            <button class="action-btn load-a-btn" onclick="loadScenario('${name}', 'a')">Load to A</button>
+                            <button class="action-btn load-b-btn" onclick="loadScenario('${name}', 'b')">Load to B</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', renderSavedScenarios);
+
         // Toggle collapse function
         function toggleCollapse(contentId, headerElement) {
             const content = document.getElementById(contentId);
