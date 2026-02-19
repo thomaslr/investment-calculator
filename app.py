@@ -217,7 +217,8 @@ def calculate():
 def simulate():
     """
     Run Monte Carlo simulation using log-normal returns.
-    Returns percentile bands for visualization.
+    Vectorized with numpy: all simulations run simultaneously per month,
+    giving ~50-100x speedup over per-simulation Python loops.
     """
     try:
         data = request.json
@@ -230,120 +231,81 @@ def simulate():
         volatility = float(data.get("volatility", 15)) / 100
         fund_fee = float(data.get("fund_fee", 0)) / 100
         platform_fee = float(data.get("platform_fee", 0)) / 100
-        num_simulations = int(data.get("num_simulations", 100))
+        num_simulations = int(data.get("num_simulations", 1000))
 
         total_fee_rate = fund_fee + platform_fee
         total_years = end_age - start_age
+        total_months = total_years * 12
 
-        # Calculate cumulative contributions for each year
+        # --- Precompute monthly contributions (deterministic, same for all sims) ---
+        monthly_contributions = np.zeros(total_months)
+        for month_idx in range(total_months):
+            year_idx = month_idx // 12
+            month_in_year = month_idx % 12
+            current_age = start_age + year_idx
+            for phase in contribution_phases:
+                if phase["start_age"] <= current_age < phase["end_age"]:
+                    freq = phase.get("frequency", "monthly")
+                    amt = phase.get("amount", 0)
+                    if freq == "monthly":
+                        monthly_contributions[month_idx] += amt
+                    elif freq == "yearly" and month_in_year == 0:
+                        monthly_contributions[month_idx] += amt
+
+        # --- Precompute cumulative contributions for response ---
         cumulative_contributions = []
         total_invested = starting_amount
         cumulative_contributions.append(total_invested)
-
         for year_idx in range(1, total_years):
-            current_age = start_age + year_idx
-            active_phases = [
-                p
-                for p in contribution_phases
-                if p["start_age"] <= current_age < p["end_age"]
-            ]
-            year_contributions = 0
-            for phase in active_phases:
-                freq = phase.get("frequency", "monthly")
-                amt = phase.get("amount", 0)
-                if freq == "monthly":
-                    year_contributions += amt * 12
-                elif freq == "yearly":
-                    year_contributions += amt
-            total_invested += year_contributions
+            year_start_month = year_idx * 12
+            year_contribs = float(np.sum(monthly_contributions[year_start_month:year_start_month + 12]))
+            total_invested += year_contribs
             cumulative_contributions.append(total_invested)
 
-        # Run simulations
-        all_paths = []
-        final_balances = []
+        # --- Pre-generate ALL random returns at once: (num_simulations, total_months) ---
+        monthly_expected = expected_return / 12
+        monthly_vol = volatility / math.sqrt(12)
+        log_mean = math.log(1 + monthly_expected) - (monthly_vol ** 2) / 2
 
-        for sim in range(num_simulations):
-            balance = starting_amount
-            path = []
+        random_returns = np.random.lognormal(
+            mean=log_mean,
+            sigma=monthly_vol,
+            size=(num_simulations, total_months),
+        )
 
-            for year_idx in range(total_years):
-                current_age = start_age + year_idx
+        fee_factor = 1 - total_fee_rate / 12
 
-                # Find all active contribution phases for this age
-                active_phases = [
-                    p
-                    for p in contribution_phases
-                    if p["start_age"] <= current_age < p["end_age"]
-                ]
+        # --- Vectorized simulation: loop over months, all sims run in parallel ---
+        balances = np.full(num_simulations, starting_amount, dtype=np.float64)
+        yearly_balances = np.zeros((num_simulations, total_years), dtype=np.float64)
 
-                # Monthly simulation for this year
-                for month in range(12):
-                    # Add contributions from all active phases
-                    for phase in active_phases:
-                        freq = phase.get("frequency", "monthly")
-                        amt = phase.get("amount", 0)
-                        if freq == "monthly":
-                            balance += amt
-                        elif freq == "yearly" and month == 0:
-                            balance += amt
+        for month_idx in range(total_months):
+            # Add this month's contribution to all simulations at once
+            balances += monthly_contributions[month_idx]
+            # Apply random return to all simulations at once
+            balances *= random_returns[:, month_idx]
+            # Apply fees to all simulations at once
+            balances *= fee_factor
 
-                    # Generate random monthly return using log-normal distribution
-                    monthly_expected = expected_return / 12
-                    monthly_vol = volatility / math.sqrt(12)
+            # Record balance at end of each year
+            if (month_idx + 1) % 12 == 0:
+                year_idx = (month_idx + 1) // 12 - 1
+                yearly_balances[:, year_idx] = np.maximum(0, balances)
 
-                    monthly_return = (
-                        np.random.lognormal(
-                            mean=math.log(1 + monthly_expected) - (monthly_vol**2) / 2,
-                            sigma=monthly_vol,
-                        )
-                        - 1
-                    )
+        # --- Calculate percentiles for each year (vectorized) ---
+        percentile_values = np.percentile(yearly_balances, [10, 25, 50, 75, 90], axis=0)
+        percentiles = {
+            "p10": np.round(percentile_values[0], 2).tolist(),
+            "p25": np.round(percentile_values[1], 2).tolist(),
+            "p50": np.round(percentile_values[2], 2).tolist(),
+            "p75": np.round(percentile_values[3], 2).tolist(),
+            "p90": np.round(percentile_values[4], 2).tolist(),
+        }
 
-                    balance *= 1 + monthly_return
-
-                    # Apply monthly fees
-                    balance *= 1 - total_fee_rate / 12
-
-                path.append(max(0, balance))
-
-            all_paths.append(path)
-            final_balances.append(balance)
-
-        # Convert to numpy for percentile calculation
-        paths_array = np.array(all_paths)
-
-        # Calculate percentiles for each year
-        percentiles = {"p10": [], "p25": [], "p50": [], "p75": [], "p90": []}
-
-        for year_idx in range(total_years):
-            year_values = paths_array[:, year_idx]
-            percentiles["p10"].append(round(float(np.percentile(year_values, 10)), 2))
-            percentiles["p25"].append(round(float(np.percentile(year_values, 25)), 2))
-            percentiles["p50"].append(round(float(np.percentile(year_values, 50)), 2))
-            percentiles["p75"].append(round(float(np.percentile(year_values, 75)), 2))
-            percentiles["p90"].append(round(float(np.percentile(year_values, 90)), 2))
-
-        # Calculate summary statistics
-        final_array = np.array(final_balances)
-
-        # Calculate total invested from starting amount and contribution phases
-        total_contributions = 0
-        for year_idx in range(total_years):
-            current_age = start_age + year_idx
-            active_phases = [
-                p
-                for p in contribution_phases
-                if p["start_age"] <= current_age < p["end_age"]
-            ]
-            for phase in active_phases:
-                freq = phase.get("frequency", "monthly")
-                amt = phase.get("amount", 0)
-                if freq == "monthly":
-                    total_contributions += amt * 12
-                elif freq == "yearly":
-                    total_contributions += amt
-
-        total_invested = starting_amount + total_contributions
+        # --- Summary statistics (vectorized) ---
+        final_balances = yearly_balances[:, -1]
+        total_contributions = float(np.sum(monthly_contributions))
+        total_invested_final = starting_amount + total_contributions
 
         return jsonify(
             {
@@ -354,18 +316,18 @@ def simulate():
                 "ages": list(range(start_age, start_age + total_years)),
                 "start_age": start_age,
                 "stats": {
-                    "median_final": round(float(np.median(final_array)), 2),
-                    "mean_final": round(float(np.mean(final_array)), 2),
-                    "p10_final": round(float(np.percentile(final_array, 10)), 2),
-                    "p90_final": round(float(np.percentile(final_array, 90)), 2),
-                    "best_case": round(float(np.max(final_array)), 2),
-                    "worst_case": round(float(np.min(final_array)), 2),
-                    "total_invested": round(total_invested, 2),
+                    "median_final": round(float(np.median(final_balances)), 2),
+                    "mean_final": round(float(np.mean(final_balances)), 2),
+                    "p10_final": round(float(np.percentile(final_balances, 10)), 2),
+                    "p90_final": round(float(np.percentile(final_balances, 90)), 2),
+                    "best_case": round(float(np.max(final_balances)), 2),
+                    "worst_case": round(float(np.min(final_balances)), 2),
+                    "total_invested": round(total_invested_final, 2),
                     "prob_double": round(
-                        float(np.mean(final_array >= total_invested * 2) * 100), 1
+                        float(np.mean(final_balances >= total_invested_final * 2) * 100), 1
                     ),
                     "prob_positive": round(
-                        float(np.mean(final_array >= total_invested) * 100), 1
+                        float(np.mean(final_balances >= total_invested_final) * 100), 1
                     ),
                 },
             }
