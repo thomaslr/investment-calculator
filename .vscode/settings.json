@@ -1,4 +1,6 @@
 {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "pyrefly.lsp.enabled": false,
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#94925a",
         "activityBar.background": "#94925a",

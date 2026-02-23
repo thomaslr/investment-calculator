@@ -71,10 +71,10 @@ def calculate_investment(
     years = end_age - start_age
     for i in range(years):
         year = start_age + i
-        year_interest = 0
-        year_interest_no_fees = 0
-        year_deposits = 0
-        year_fees = 0
+        year_interest = 0.0
+        year_interest_no_fees = 0.0
+        year_deposits = 0.0
+        year_fees = 0.0
 
         # Find all phases active this year
         active_phases = [
